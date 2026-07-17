@@ -7,7 +7,7 @@
     "build": "nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "npx nuxt prepare"
+    "postinstall": "node ./node_modules/nuxt/bin/nuxt.mjs prepare"
   },
   "dependencies": {
     "@nuxt/fonts": "^0.14.0",
