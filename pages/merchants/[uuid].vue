@@ -1,0 +1,174 @@
+<template>
+  <div class="space-y-6 animate-fade-in" v-if="!loading && merchant">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <NuxtLink to="/merchants" class="p-2 border rounded-xl hover:bg-slate-50 text-slate-500 transition-colors bg-white">
+          <Icon name="heroicons:arrow-left" class="w-5 h-5" />
+        </NuxtLink>
+        <div>
+          <h1 class="text-2xl font-extrabold tracking-tight text-slate-800">{{ merchant.store_name || merchant.name }}</h1>
+          <p class="text-sm mt-1 text-slate-500">Detail & Analitik Pedagang</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button class="px-4 py-2 text-xs font-bold rounded-xl border bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-sm text-red-600 border-red-100 hover:bg-red-50">
+          Tangguhkan
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left Column: Profile Card -->
+      <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white border rounded-2xl p-6 shadow-sm text-center">
+          <div class="w-24 h-24 mx-auto rounded-full bg-slate-200 border-4 border-white shadow-md overflow-hidden mb-4">
+            <img v-if="merchant.photo_profile" :src="merchant.photo_profile" class="w-full h-full object-cover" />
+            <div v-else class="w-full h-full flex items-center justify-center text-slate-400 font-bold uppercase text-3xl">
+              {{ merchant.name.charAt(0) }}
+            </div>
+          </div>
+          <h2 class="text-lg font-bold text-slate-800">{{ merchant.store_name || merchant.name }}</h2>
+          <p class="text-sm text-slate-500 mb-4">{{ merchant.name }}</p>
+          
+          <span class="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100 mb-6">
+            {{ merchant.category_store || 'Tanpa Kategori' }}
+          </span>
+
+          <div class="space-y-3 text-left border-t pt-4">
+            <div class="flex items-center gap-3 text-sm">
+              <Icon name="heroicons:envelope" class="w-4 h-4 text-slate-400" />
+              <span class="text-slate-700">{{ merchant.email }}</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+              <Icon name="heroicons:phone" class="w-4 h-4 text-slate-400" />
+              <span class="text-slate-700">{{ merchant.phone_number || '-' }}</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+              <Icon name="heroicons:calendar" class="w-4 h-4 text-slate-400" />
+              <span class="text-slate-700">Bergabung pada {{ new Date(merchant.created_at).toLocaleDateString() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="bg-white border rounded-2xl p-6 shadow-sm" v-if="merchant.description">
+          <h3 class="text-sm font-bold mb-2">Tentang Toko</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">{{ merchant.description }}</p>
+        </div>
+      </div>
+
+      <!-- Right Column: Location & Stats -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Address & Map -->
+        <div class="bg-white border rounded-2xl p-6 shadow-sm flex flex-col h-[400px]">
+          <h3 class="text-base font-bold mb-1">Lokasi Toko</h3>
+          <p class="text-sm text-slate-500 mb-4">{{ merchant.address || 'Tidak ada alamat yang diberikan' }}</p>
+          
+          <div class="flex-1 rounded-xl overflow-hidden border bg-slate-50 relative">
+             <div v-if="merchant.latitude && merchant.longitude" ref="mapContainer" class="w-full h-full"></div>
+             <div v-else class="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
+               <Icon name="heroicons:map-pin" class="w-8 h-8 mb-2 opacity-50" />
+               <p class="text-sm">Lokasi belum disematkan</p>
+             </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div v-else-if="loading" class="flex justify-center items-center h-[50vh]">
+    <Icon name="heroicons:arrow-path" class="w-8 h-8 animate-spin text-slate-400" />
+  </div>
+
+  <div v-else class="text-center py-20">
+    <Icon name="heroicons:exclamation-circle" class="w-12 h-12 text-slate-300 mx-auto mb-4" />
+    <h2 class="text-xl font-bold text-slate-700">Pedagang tidak ditemukan</h2>
+    <NuxtLink to="/merchants" class="mt-4 inline-block text-blue-600 hover:underline">Kembali ke Daftar Pedagang</NuxtLink>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
+import { api } from '~/utils/api'
+import maplibregl from 'maplibre-gl'
+import 'maplibre-gl/dist/maplibre-gl.css'
+
+const route = useRoute()
+const merchantId = route.params.uuid
+const merchant = ref<any>(null)
+const loading = ref(true)
+
+const mapContainer = ref<HTMLElement | null>(null)
+let map: maplibregl.Map | null = null
+
+const fetchMerchant = async () => {
+  loading.value = true
+  try {
+    const res = await api.get(`/admin/merchants/${merchantId}`)
+    if (res) {
+      merchant.value = res
+      if (res.latitude && res.longitude) {
+        nextTick(() => {
+          initMap(res.latitude, res.longitude)
+        })
+      }
+    }
+  } catch (err) {
+    console.error("Failed to fetch merchant details", err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const initMap = (lat: number, lng: number) => {
+  if (!mapContainer.value) return
+
+  map = new maplibregl.Map({
+    container: mapContainer.value,
+    style: {
+      version: 8,
+      sources: {
+        'osm-tiles': {
+          type: 'raster',
+          tiles: [
+            'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+          ],
+          tileSize: 256,
+          attribution: '&copy; OpenStreetMap'
+        }
+      },
+      layers: [
+        {
+          id: 'osm-tiles-layer',
+          type: 'raster',
+          source: 'osm-tiles',
+          minzoom: 0,
+          maxzoom: 19
+        }
+      ]
+    },
+    center: [lng, lat],
+    zoom: 15
+  })
+
+  map.addControl(new maplibregl.NavigationControl(), 'top-right')
+
+  const el = document.createElement('div')
+  el.className = 'w-5 h-5 bg-blue-500 rounded-full border-2 border-white shadow-md'
+  
+  new maplibregl.Marker({ element: el })
+    .setLngLat([lng, lat])
+    .addTo(map)
+}
+
+onMounted(() => {
+  fetchMerchant()
+})
+
+onUnmounted(() => {
+  if (map) map.remove()
+})
+</script>

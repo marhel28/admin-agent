@@ -1,0 +1,1 @@
+<template><div><h2>ai/performance.vue</h2></div></template><script setup lang="ts"></script>
