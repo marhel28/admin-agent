@@ -480,6 +480,11 @@ const initMap = (lat: number, lng: number) => {
   new maplibregl.Marker({ element: el })
     .setLngLat([lng, lat])
     .addTo(map)
+
+  // Fix blank/gray map: container may not have final size at init time
+  map.on('load', () => {
+    map!.resize()
+  })
 }
 
 onMounted(() => {
