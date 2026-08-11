@@ -47,32 +47,82 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Left Column: Profile Card -->
       <div class="lg:col-span-1 space-y-6">
-        <div class="bg-white border rounded-2xl p-6 shadow-sm text-center">
-          <div class="w-24 h-24 mx-auto rounded-full bg-slate-200 border-4 border-white shadow-md overflow-hidden mb-4">
-            <img v-if="merchant.photo_profile" :src="merchant.photo_profile" class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex items-center justify-center text-slate-400 font-bold uppercase text-3xl">
-              {{ merchant.name.charAt(0) }}
+        <div class="bg-white border rounded-2xl p-6 shadow-sm text-center relative">
+          <button v-if="!editing" @click="startEdit" class="absolute top-4 right-4 px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors flex items-center gap-1">
+            <Icon name="heroicons:pencil-square" class="w-3.5 h-3.5" />
+            Edit
+          </button>
+
+          <!-- View mode -->
+          <div v-if="!editing">
+            <div class="w-24 h-24 mx-auto rounded-full bg-slate-200 border-4 border-white shadow-md overflow-hidden mb-4">
+              <img v-if="merchant.photo_profile" :src="merchant.photo_profile" class="w-full h-full object-cover" />
+              <div v-else class="w-full h-full flex items-center justify-center text-slate-400 font-bold uppercase text-3xl">
+                {{ merchant.name.charAt(0) }}
+              </div>
+            </div>
+            <h2 class="text-lg font-bold text-slate-800">{{ merchant.store_name || merchant.name }}</h2>
+            <p class="text-sm text-slate-500 mb-4">{{ merchant.name }}</p>
+
+            <span class="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100 mb-6">
+              {{ merchant.category_store || 'Tanpa Kategori' }}
+            </span>
+
+            <div class="space-y-3 text-left border-t pt-4">
+              <div class="flex items-center gap-3 text-sm">
+                <Icon name="heroicons:envelope" class="w-4 h-4 text-slate-400" />
+                <span class="text-slate-700">{{ merchant.email }}</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm">
+                <Icon name="heroicons:phone" class="w-4 h-4 text-slate-400" />
+                <span class="text-slate-700">{{ merchant.phone_number || '-' }}</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm">
+                <Icon name="heroicons:calendar" class="w-4 h-4 text-slate-400" />
+                <span class="text-slate-700">Bergabung {{ new Date(merchant.created_at).toLocaleDateString() }}</span>
+              </div>
             </div>
           </div>
-          <h2 class="text-lg font-bold text-slate-800">{{ merchant.store_name || merchant.name }}</h2>
-          <p class="text-sm text-slate-500 mb-4">{{ merchant.name }}</p>
 
-          <span class="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100 mb-6">
-            {{ merchant.category_store || 'Tanpa Kategori' }}
-          </span>
-
-          <div class="space-y-3 text-left border-t pt-4">
-            <div class="flex items-center gap-3 text-sm">
-              <Icon name="heroicons:envelope" class="w-4 h-4 text-slate-400" />
-              <span class="text-slate-700">{{ merchant.email }}</span>
+          <!-- Edit mode -->
+          <div v-else class="text-left">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 text-center">Edit Data Pedagang</h2>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Pemilik</label>
+                <input v-model="editForm.name" type="text" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">Nama Toko</label>
+                <input v-model="editForm.store_name" type="text" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">Telepon</label>
+                <input v-model="editForm.phone_number" type="tel" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">Kategori</label>
+                <select v-model="editForm.category_store" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white">
+                  <option v-for="cat in STORE_CATEGORIES" :key="cat" :value="cat">{{ cat }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">Alamat</label>
+                <textarea v-model="editForm.address" rows="2" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">Deskripsi</label>
+                <textarea v-model="editForm.description" rows="2" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"></textarea>
+              </div>
             </div>
-            <div class="flex items-center gap-3 text-sm">
-              <Icon name="heroicons:phone" class="w-4 h-4 text-slate-400" />
-              <span class="text-slate-700">{{ merchant.phone_number || '-' }}</span>
-            </div>
-            <div class="flex items-center gap-3 text-sm">
-              <Icon name="heroicons:calendar" class="w-4 h-4 text-slate-400" />
-              <span class="text-slate-700">Bergabung {{ new Date(merchant.created_at).toLocaleDateString() }}</span>
+            <div class="flex gap-2 mt-4">
+              <button @click="saveEdit" :disabled="saving" class="flex-1 px-4 py-2 text-sm font-bold rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2">
+                <Icon v-if="saving" name="heroicons:arrow-path" class="w-4 h-4 animate-spin" />
+                {{ saving ? 'Menyimpan...' : 'Simpan' }}
+              </button>
+              <button @click="cancelEdit" class="px-4 py-2 text-sm font-bold rounded-xl border bg-white text-slate-700 hover:bg-slate-50">
+                Batal
+              </button>
             </div>
           </div>
         </div>
@@ -146,10 +196,16 @@
               <h3 class="text-base font-bold mb-1">Lokasi Toko</h3>
               <p class="text-sm text-slate-500">{{ merchant.address || 'Tidak ada alamat' }}</p>
             </div>
-            <button @click="showLocationEdit = true" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors flex items-center gap-1">
-              <Icon name="heroicons:pencil-square" class="w-3.5 h-3.5" />
-              Edit Lokasi
-            </button>
+            <div class="flex items-center gap-2">
+              <button v-if="merchant.latitude && merchant.longitude" @click="deleteLocation" :disabled="deletingLocation" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex items-center gap-1 disabled:opacity-50">
+                <Icon name="heroicons:trash" class="w-3.5 h-3.5" />
+                Hapus Lokasi
+              </button>
+              <button @click="showLocationEdit = true" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors flex items-center gap-1">
+                <Icon name="heroicons:pencil-square" class="w-3.5 h-3.5" />
+                Edit Lokasi
+              </button>
+            </div>
           </div>
 
           <div class="flex-1 rounded-xl overflow-hidden border bg-slate-50 relative">
@@ -206,6 +262,49 @@ const walletLoading = ref(false)
 
 // Location edit
 const showLocationEdit = ref(false)
+
+// Delete location
+const deletingLocation = ref(false)
+
+// Merchant edit
+const editing = ref(false)
+const saving = ref(false)
+const editForm = ref({
+  name: '',
+  store_name: '',
+  phone_number: '',
+  category_store: '',
+  address: '',
+  description: '',
+})
+
+// Store category options (matches backend StoreCategory enum)
+const STORE_CATEGORIES = [
+  'Makanan & Minuman',
+  'Toko Retail',
+  'Fashion',
+  'Kecantikan & Perawatan',
+  'Kesehatan',
+  'Elektronik & Gadget',
+  'Rumah Tangga & Furniture',
+  'Pertanian',
+  'Peternakan',
+  'Perikanan',
+  'Otomotif',
+  'Konstruksi & Bangunan',
+  'Percetakan & Advertising',
+  'Jasa Profesional',
+  'Jasa Digital',
+  'Pendidikan',
+  'Pariwisata',
+  'Transportasi & Logistik',
+  'Kerajinan',
+  'Industri & Produksi',
+  'Hewan Peliharaan',
+  'Laundry & Kebersihan',
+  'Marketplace & Online Shop',
+  'Lainnya',
+]
 
 // Delete
 const showDeleteConfirm = ref(false)
@@ -279,6 +378,61 @@ const onLocationSaved = (updated: any) => {
     nextTick(() => {
       initMap(merchant.value.latitude, merchant.value.longitude)
     })
+  }
+}
+
+// --- Merchant edit ---
+const startEdit = () => {
+  if (!merchant.value) return
+  editForm.value = {
+    name: merchant.value.name || '',
+    store_name: merchant.value.store_name || '',
+    phone_number: merchant.value.phone_number || '',
+    category_store: merchant.value.category_store || '',
+    address: merchant.value.address || '',
+    description: merchant.value.description || '',
+  }
+  editing.value = true
+}
+
+const cancelEdit = () => {
+  editing.value = false
+}
+
+const saveEdit = async () => {
+  saving.value = true
+  try {
+    const res = await api.patch(`/admin/merchants/${merchantId}`, editForm.value)
+    if (res) {
+      // Refresh merchant data from server
+      await fetchMerchant()
+      editing.value = false
+      alert('Data pedagang diperbarui.')
+    }
+  } catch (err) {
+    console.error("Failed to update merchant", err)
+    alert('Gagal memperbarui data pedagang.')
+  } finally {
+    saving.value = false
+  }
+}
+
+// --- Delete location ---
+const deleteLocation = async () => {
+  if (!confirm('Hapus lokasi merchant? Latitude dan longitude akan direset.')) return
+  deletingLocation.value = true
+  try {
+    await api.delete(`/admin/location/${merchantId}`)
+    if (merchant.value) {
+      merchant.value.latitude = null
+      merchant.value.longitude = null
+    }
+    alert('Lokasi berhasil dihapus.')
+  } catch (err) {
+    console.error("Failed to delete location", err)
+    alert('Gagal menghapus lokasi.')
+  } finally {
+    deletingLocation.value = false
   }
 }
 

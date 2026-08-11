@@ -63,6 +63,10 @@
             <Icon name="heroicons:building-storefront" class="w-5 h-5" />
             <span>All Merchants</span>
           </NuxtLink>
+          <NuxtLink to="/merchants/new" exact-active-class="nav-active" class="nav-link">
+            <Icon name="heroicons:plus" class="w-5 h-5" />
+            <span>Tambah Pedagang</span>
+          </NuxtLink>
           <NuxtLink to="/merchants/pending" exact-active-class="nav-active" class="nav-link">
             <Icon name="heroicons:clock" class="w-5 h-5" />
             <span>Pending Verification</span>
