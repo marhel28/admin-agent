@@ -17,10 +17,10 @@
     </div>
 
     <!-- Advanced Data Grid (AG Grid) -->
-    <div class="bg-white border rounded-2xl shadow-sm overflow-hidden flex flex-col h-[700px]">
-      <div class="p-5 border-b bg-slate-50 flex items-center justify-between">
+    <div class="bg-white border border-[var(--wp-border)] rounded-sm shadow-sm overflow-hidden flex flex-col h-[700px]">
+      <div class="p-5 border-b border-[var(--wp-border)] bg-slate-50/50 flex items-center justify-between">
         <div>
-          <h2 class="text-base font-bold text-slate-800">Daftar Utama</h2>
+          <h2 class="text-base font-bold text-[var(--wp-navy)]">Daftar Utama</h2>
           <p class="text-xs text-slate-500">Pencarian Manticore aktif.</p>
         </div>
         <div class="flex items-center gap-3">
@@ -117,13 +117,13 @@ const colDefs = ref([
     const subtitle = p.data.email || 'Tidak ada email'
     
     const imgHtml = p.data.photo_profile 
-      ? `<img src="${p.data.photo_profile}" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" />`
-      : `<div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">${initials}</div>`
+      ? `<img src="${p.data.photo_profile}" style="width: 36px; height: 36px; border-radius: 4px; object-fit: cover; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" />`
+      : `<div style="width: 36px; height: 36px; border-radius: 4px; background: linear-gradient(135deg, var(--wp-navy), #0f172a); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">${initials}</div>`
     
     return `<div style="display: flex; align-items: center; gap: 14px; height: 100%; padding: 4px 0; cursor: pointer;">
               ${imgHtml}
               <div style="display: flex; flex-direction: column; justify-content: center; line-height: 1.3;">
-                <span style="font-weight: 800; color: #0f172a; font-size: 13px;">${name}</span>
+                <span style="font-weight: 800; color: var(--wp-navy); font-size: 13px;">${name}</span>
                 <span style="font-size: 11px; color: #64748b; font-weight: 500;">${subtitle}</span>
               </div>
             </div>`
@@ -167,15 +167,15 @@ const colDefs = ref([
     const isVerified = p.value === true || true; 
     if (isVerified) {
         return `<div style="display: flex; align-items: center; height: 100%;">
-                <span style="display: flex; align-items: center; gap: 6px; background-color: #ecfdf5; color: #059669; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid #a7f3d0; text-transform: uppercase;">
-                  <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+                <span style="display: flex; align-items: center; gap: 6px; background-color: rgba(212,168,67,0.1); color: var(--wp-gold-dark); padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase;">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background-color: var(--wp-gold); box-shadow: 0 0 4px var(--wp-gold);"></span>
                   AKTIF
                 </span>
               </div>`
     }
     return `<div style="display: flex; align-items: center; height: 100%;">
-                <span style="display: flex; align-items: center; gap: 6px; background-color: #fffbeb; color: #d97706; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid #fde68a; text-transform: uppercase;">
-                  <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #f59e0b;"></span>
+                <span style="display: flex; align-items: center; gap: 6px; background-color: #f1f5f9; color: #64748b; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase;">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #94a3b8;"></span>
                   MENUNGGU
                 </span>
               </div>`

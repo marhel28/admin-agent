@@ -42,22 +42,22 @@
       <!-- Main Charts Row -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- AI Usage Trend -->
-        <div class="lg:col-span-2 bg-white border rounded-2xl p-6 shadow-sm">
-          <h2 class="text-base font-bold mb-4 text-slate-800">Daily Copilot Interactions</h2>
+        <div class="lg:col-span-2 bg-white border border-[var(--wp-border)] rounded-sm p-6 shadow-sm">
+          <h2 class="text-base font-bold mb-4 text-[var(--wp-navy)]">Daily Copilot Interactions</h2>
           <VChart v-if="usageOption" :option="usageOption" autoresize class="h-80 w-full" />
         </div>
         
         <!-- Agent Workload Distribution -->
-        <div class="bg-white border rounded-2xl p-6 shadow-sm">
-          <h2 class="text-base font-bold mb-4 text-slate-800">Agent Specialization Workload</h2>
+        <div class="bg-white border border-[var(--wp-border)] rounded-sm p-6 shadow-sm">
+          <h2 class="text-base font-bold mb-4 text-[var(--wp-navy)]">Agent Specialization Workload</h2>
           <VChart v-if="agentOption" :option="agentOption" autoresize class="h-80 w-full" />
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- AI Needs Attention (Audit Log) -->
-        <div class="lg:col-span-2 bg-white border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-          <div class="p-5 border-b bg-rose-50/50 flex items-center justify-between">
+        <div class="lg:col-span-2 bg-white border border-[var(--wp-border)] rounded-sm shadow-sm overflow-hidden flex flex-col">
+          <div class="p-5 border-b border-[var(--wp-border)] bg-white flex items-center justify-between">
             <h2 class="text-base font-bold text-rose-800 flex items-center gap-2">
               <Icon name="heroicons:exclamation-triangle" class="w-5 h-5" />
               AI Audit Log (Needs Attention)
@@ -68,18 +68,18 @@
               No recent failures or bad ratings. AI is performing optimally!
             </div>
             <div v-else class="space-y-4">
-              <div v-for="(log, i) in data.tables.auditLogs" :key="i" class="p-4 border border-rose-100 rounded-xl bg-rose-50/30">
+              <div v-for="(log, i) in data.tables.auditLogs" :key="i" class="p-4 border border-[var(--wp-border)] rounded-sm bg-slate-50/50">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-md">{{ log.store }}</span>
+                  <span class="text-xs font-bold text-slate-600 bg-white border border-[var(--wp-border)] px-2 py-1 rounded-sm">{{ log.store }}</span>
                   <div class="flex items-center gap-1 text-amber-500">
                     <Icon v-for="s in 5" :key="s" :name="s <= (log.rating || 0) ? 'heroicons:star-solid' : 'heroicons:star'" class="w-3 h-3" />
                   </div>
                 </div>
-                <div class="text-sm font-medium text-slate-800 mb-2">
-                  <span class="text-blue-600 font-bold">User:</span> {{ log.message }}
+                <div class="text-sm font-medium text-[var(--wp-navy)] mb-2">
+                  <span class="font-bold" style="color: var(--wp-gold-dark);">User:</span> {{ log.message }}
                 </div>
-                <div class="text-sm text-slate-600 bg-white p-3 rounded-lg border shadow-sm">
-                  <span class="text-purple-600 font-bold">AI Reply:</span> {{ log.reply }}
+                <div class="text-sm text-slate-600 bg-white p-3 rounded-sm border border-[var(--wp-border)] shadow-sm">
+                  <span class="font-bold" style="color: var(--wp-navy);">AI Reply:</span> {{ log.reply }}
                 </div>
               </div>
             </div>
@@ -87,28 +87,25 @@
         </div>
 
         <!-- Power Users Table -->
-        <div class="bg-white border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-          <div class="p-5 border-b bg-slate-50">
-            <h2 class="text-base font-bold text-slate-800">⚡ Top Power Users</h2>
+        <div class="bg-white border border-[var(--wp-border)] rounded-sm shadow-sm overflow-hidden flex flex-col">
+          <div class="p-5 border-b border-[var(--wp-border)] bg-slate-50/50">
+            <h2 class="text-base font-bold text-[var(--wp-navy)]">Top Power Users</h2>
           </div>
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600">
-              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b">
+            <table class="w-full text-left text-sm text-slate-600 table-fixed">
+              <thead class="bg-slate-50 text-[10px] uppercase text-slate-500 font-bold border-b border-[var(--wp-border)] tracking-wider">
                 <tr>
-                  <th class="px-6 py-4">Store Name</th>
-                  <th class="px-6 py-4 text-right">Interactions</th>
+                  <th class="px-5 py-3 w-2/3">Store Name</th>
+                  <th class="px-5 py-3 w-1/3 text-right">Interactions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="!data.tables.powerUsers.length">
-                  <td colspan="2" class="px-6 py-10 text-center text-slate-400">No data available</td>
+                  <td colspan="2" class="px-5 py-8 text-center text-slate-400">No data available</td>
                 </tr>
-                <tr v-for="(user, i) in data.tables.powerUsers" :key="i" class="border-b last:border-b-0 hover:bg-slate-50 transition-colors">
-                  <td class="px-6 py-4 font-bold text-slate-800 flex items-center gap-2">
-                    <span v-if="i === 0" class="text-yellow-500">👑</span>
-                    {{ user.store }}
-                  </td>
-                  <td class="px-6 py-4 text-right font-bold text-blue-600">{{ user.queries.toLocaleString('id-ID') }}</td>
+                <tr v-for="(user, i) in data.tables.powerUsers" :key="i" class="border-b border-[var(--wp-border)] last:border-b-0 hover:bg-slate-50 transition-colors">
+                  <td class="px-5 py-3 font-bold text-[var(--wp-navy)] truncate">{{ user.store }}</td>
+                  <td class="px-5 py-3 text-right font-bold" style="color: var(--wp-navy);">{{ user.queries.toLocaleString('id-ID') }}</td>
                 </tr>
               </tbody>
             </table>

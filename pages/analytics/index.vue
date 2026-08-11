@@ -42,14 +42,14 @@
       <!-- Main Charts Row -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Revenue Trend Line Chart -->
-        <div class="bg-white border rounded-2xl p-6 shadow-sm">
-          <h2 class="text-base font-bold mb-4 text-slate-800">Platform Revenue Trend</h2>
+        <div class="bg-white border border-[var(--wp-border)] rounded-sm p-6 shadow-sm">
+          <h2 class="text-base font-bold mb-4 text-[var(--wp-navy)]">Platform Revenue Trend</h2>
           <VChart v-if="revenueOption" :option="revenueOption" autoresize class="h-72 w-full" />
         </div>
         
         <!-- AI Activity Area Chart -->
-        <div class="bg-white border rounded-2xl p-6 shadow-sm">
-          <h2 class="text-base font-bold mb-4 text-slate-800">AI Chat Activity</h2>
+        <div class="bg-white border border-[var(--wp-border)] rounded-sm p-6 shadow-sm">
+          <h2 class="text-base font-bold mb-4 text-[var(--wp-navy)]">AI Chat Activity</h2>
           <VChart v-if="aiOption" :option="aiOption" autoresize class="h-72 w-full" />
         </div>
       </div>
@@ -57,14 +57,14 @@
       <!-- Secondary Charts & Tables Row -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Top 10 Merchants Bar Chart -->
-        <div class="lg:col-span-2 bg-white border rounded-2xl p-6 shadow-sm">
-          <h2 class="text-base font-bold mb-4 text-slate-800">Top 10 Merchants (by Revenue)</h2>
+        <div class="lg:col-span-2 bg-white border border-[var(--wp-border)] rounded-sm p-6 shadow-sm">
+          <h2 class="text-base font-bold mb-4 text-[var(--wp-navy)]">Top 10 Merchants (by Revenue)</h2>
           <VChart v-if="topMerchantsOption" :option="topMerchantsOption" autoresize class="h-72 w-full" />
         </div>
 
         <!-- Category Distribution Pie Chart -->
-        <div class="bg-white border rounded-2xl p-6 shadow-sm">
-          <h2 class="text-base font-bold mb-4 text-slate-800">Category Distribution</h2>
+        <div class="bg-white border border-[var(--wp-border)] rounded-sm p-6 shadow-sm">
+          <h2 class="text-base font-bold mb-4 text-[var(--wp-navy)]">Category Distribution</h2>
           <VChart v-if="categoryOption" :option="categoryOption" autoresize class="h-72 w-full" />
         </div>
       </div>
@@ -72,51 +72,51 @@
       <!-- Tables Row -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Trending Products -->
-        <div class="bg-white border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-          <div class="p-4 border-b bg-slate-50/50">
-            <h2 class="text-sm font-bold text-slate-800">🔥 Trending Products</h2>
+        <div class="bg-white border border-[var(--wp-border)] rounded-sm shadow-sm overflow-hidden flex flex-col">
+          <div class="p-4 border-b border-[var(--wp-border)] bg-slate-50/50">
+            <h2 class="text-sm font-bold text-[var(--wp-navy)]">Trending Products</h2>
           </div>
-          <table class="w-full text-left text-sm text-slate-600">
-            <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b">
+          <table class="w-full text-left text-sm text-slate-600 table-fixed">
+            <thead class="bg-slate-50 text-[10px] uppercase text-slate-500 font-bold border-b border-[var(--wp-border)] tracking-wider">
               <tr>
-                <th class="px-6 py-3">Product Name</th>
-                <th class="px-6 py-3 text-right">Qty Sold</th>
+                <th class="px-5 py-3 w-3/4">Product Name</th>
+                <th class="px-5 py-3 w-1/4 text-right">Qty Sold</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="!data.tables.trendingProducts.length">
-                <td colspan="2" class="px-6 py-8 text-center text-slate-400">No data available</td>
+                <td colspan="2" class="px-5 py-8 text-center text-slate-400">No data available</td>
               </tr>
-              <tr v-for="(p, i) in data.tables.trendingProducts" :key="i" class="border-b last:border-b-0 hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-3 font-medium">{{ p.name }}</td>
-                <td class="px-6 py-3 text-right font-bold text-blue-600">{{ p.sold }}</td>
+              <tr v-for="(p, i) in data.tables.trendingProducts" :key="i" class="border-b border-[var(--wp-border)] last:border-b-0 hover:bg-slate-50 transition-colors">
+                <td class="px-5 py-3 font-medium text-[var(--wp-navy)] truncate">{{ p.name }}</td>
+                <td class="px-5 py-3 text-right font-bold" style="color: var(--wp-navy);">{{ p.sold }}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <!-- Low Stock Alerts Global -->
-        <div class="bg-white border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-          <div class="p-4 border-b bg-red-50/50 flex justify-between items-center">
-            <h2 class="text-sm font-bold text-red-700">⚠️ Global Low Stock Alerts</h2>
-            <NuxtLink to="/analytics/stocks" class="text-xs text-red-600 hover:underline">View All</NuxtLink>
+        <div class="bg-white border border-[var(--wp-border)] rounded-sm shadow-sm overflow-hidden flex flex-col">
+          <div class="p-4 border-b border-[var(--wp-border)] bg-slate-50/50 flex justify-between items-center">
+            <h2 class="text-sm font-bold text-[var(--wp-navy)]">Global Low Stock Alerts</h2>
+            <NuxtLink to="/analytics/stocks" class="text-xs font-bold" style="color: var(--wp-gold-dark);">View All</NuxtLink>
           </div>
-          <table class="w-full text-left text-sm text-slate-600">
-            <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b">
+          <table class="w-full text-left text-sm text-slate-600 table-fixed">
+            <thead class="bg-slate-50 text-[10px] uppercase text-slate-500 font-bold border-b border-[var(--wp-border)] tracking-wider">
               <tr>
-                <th class="px-6 py-3">Product</th>
-                <th class="px-6 py-3">Merchant</th>
-                <th class="px-6 py-3 text-right">Stock</th>
+                <th class="px-5 py-3 w-2/5">Product</th>
+                <th class="px-5 py-3 w-2/5">Merchant</th>
+                <th class="px-5 py-3 w-1/5 text-right">Stock</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="!data.tables.lowStocks.length">
-                <td colspan="3" class="px-6 py-8 text-center text-slate-400">All stocks are healthy!</td>
+                <td colspan="3" class="px-5 py-8 text-center text-slate-400">All stocks are healthy!</td>
               </tr>
-              <tr v-for="(ls, i) in data.tables.lowStocks" :key="i" class="border-b last:border-b-0 hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-3 font-medium">{{ ls.product }}</td>
-                <td class="px-6 py-3 text-xs text-slate-500">{{ ls.store }}</td>
-                <td class="px-6 py-3 text-right font-bold text-red-600">{{ ls.stock }}</td>
+              <tr v-for="(ls, i) in data.tables.lowStocks" :key="i" class="border-b border-[var(--wp-border)] last:border-b-0 hover:bg-slate-50 transition-colors">
+                <td class="px-5 py-3 font-medium text-[var(--wp-navy)] truncate">{{ ls.product }}</td>
+                <td class="px-5 py-3 text-xs text-slate-500 truncate">{{ ls.store }}</td>
+                <td class="px-5 py-3 text-right font-bold text-red-600">{{ ls.stock }}</td>
               </tr>
             </tbody>
           </table>

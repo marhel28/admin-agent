@@ -42,42 +42,42 @@
       <!-- Main Charts Row -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Catalog Growth Trend -->
-        <div class="lg:col-span-2 bg-white border rounded-2xl p-6 shadow-sm">
-          <h2 class="text-base font-bold mb-4 text-slate-800">Catalog Growth Trend (New Products)</h2>
+        <div class="lg:col-span-2 bg-white border border-[var(--wp-border)] rounded-sm p-6 shadow-sm">
+          <h2 class="text-base font-bold mb-4 text-[var(--wp-navy)]">Catalog Growth Trend (New Products)</h2>
           <VChart v-if="growthOption" :option="growthOption" autoresize class="h-80 w-full" />
         </div>
         
         <!-- Category Saturation -->
-        <div class="bg-white border rounded-2xl p-6 shadow-sm">
-          <h2 class="text-base font-bold mb-4 text-slate-800">Category Saturation</h2>
+        <div class="bg-white border border-[var(--wp-border)] rounded-sm p-6 shadow-sm">
+          <h2 class="text-base font-bold mb-4 text-[var(--wp-navy)]">Category Saturation</h2>
           <VChart v-if="saturationOption" :option="saturationOption" autoresize class="h-80 w-full" />
         </div>
       </div>
 
       <!-- Category Performance Table -->
-      <div class="bg-white border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-        <div class="p-5 border-b bg-slate-50">
-          <h2 class="text-base font-bold text-slate-800">Category Performance Matrix</h2>
+      <div class="bg-white border border-[var(--wp-border)] rounded-sm shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-[var(--wp-border)] bg-slate-50/50">
+          <h2 class="text-base font-bold text-[var(--wp-navy)]">Category Performance Matrix</h2>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-slate-600">
-            <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b">
+          <table class="w-full text-left text-sm text-slate-600 table-fixed">
+            <thead class="bg-slate-50 text-[10px] uppercase text-slate-500 font-bold border-b border-[var(--wp-border)] tracking-wider">
               <tr>
-                <th class="px-6 py-4">Category Name</th>
-                <th class="px-6 py-4 text-right">Total SKUs</th>
-                <th class="px-6 py-4 text-right">Avg Price</th>
-                <th class="px-6 py-4 text-right">Units Sold</th>
+                <th class="px-5 py-3 w-2/5">Category Name</th>
+                <th class="px-5 py-3 w-1/5 text-right">Total SKUs</th>
+                <th class="px-5 py-3 w-1/5 text-right">Avg Price</th>
+                <th class="px-5 py-3 w-1/5 text-right">Units Sold</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="!data.tables.categoryPerformance.length">
-                <td colspan="4" class="px-6 py-10 text-center text-slate-400">No category data available</td>
+                <td colspan="4" class="px-5 py-8 text-center text-slate-400">No category data available</td>
               </tr>
-              <tr v-for="(cat, i) in data.tables.categoryPerformance" :key="i" class="border-b last:border-b-0 hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-4 font-bold text-slate-800">{{ cat.category }}</td>
-                <td class="px-6 py-4 text-right">{{ cat.totalSku.toLocaleString('id-ID') }}</td>
-                <td class="px-6 py-4 text-right">{{ formatRupiah(cat.avgPrice) }}</td>
-                <td class="px-6 py-4 text-right font-bold text-blue-600">{{ cat.qtySold.toLocaleString('id-ID') }}</td>
+              <tr v-for="(cat, i) in data.tables.categoryPerformance" :key="i" class="border-b border-[var(--wp-border)] last:border-b-0 hover:bg-slate-50 transition-colors">
+                <td class="px-5 py-3 font-bold text-[var(--wp-navy)] truncate">{{ cat.category }}</td>
+                <td class="px-5 py-3 text-right">{{ cat.totalSku.toLocaleString('id-ID') }}</td>
+                <td class="px-5 py-3 text-right">{{ formatRupiah(cat.avgPrice) }}</td>
+                <td class="px-5 py-3 text-right font-bold" style="color: var(--wp-navy);">{{ cat.qtySold.toLocaleString('id-ID') }}</td>
               </tr>
             </tbody>
           </table>

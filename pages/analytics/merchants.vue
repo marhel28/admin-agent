@@ -46,60 +46,60 @@
       <!-- Main Row -->
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <!-- New Merchant Acquisition Trend -->
-        <div class="xl:col-span-2 bg-white border rounded-2xl p-6 shadow-sm">
-          <h2 class="text-base font-bold mb-4 text-slate-800">New Merchant Acquisition Trend</h2>
+        <div class="xl:col-span-2 bg-white border border-[var(--wp-border)] rounded-sm p-6 shadow-sm">
+          <h2 class="text-base font-bold mb-4 text-[var(--wp-navy)]">New Merchant Acquisition Trend</h2>
           <VChart v-if="acqOption" :option="acqOption" autoresize class="h-80 w-full" />
         </div>
 
         <!-- Geographic Performance / Mini Map Hint -->
-        <div class="bg-white border rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center text-center">
-          <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-4">
+        <div class="bg-white border border-[var(--wp-border)] rounded-sm p-6 shadow-sm flex flex-col items-center justify-center text-center">
+          <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4" style="background: rgba(212,168,67,0.1); color: var(--wp-gold-dark);">
             <Icon name="heroicons:map-pin" class="w-8 h-8" />
           </div>
-          <h3 class="font-bold text-lg text-slate-800 mb-2">Geographic Distribution</h3>
+          <h3 class="font-bold text-lg text-[var(--wp-navy)] mb-2">Geographic Distribution</h3>
           <p class="text-sm text-slate-500 mb-6">Explore where your merchants are located around the globe to plan hyper-local campaigns.</p>
-          <NuxtLink to="/merchants/map" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl shadow hover:bg-blue-700 transition">
+          <NuxtLink to="/merchants/map" class="px-6 py-3 text-white font-bold rounded-sm shadow-sm transition-transform hover:scale-105" style="background: linear-gradient(135deg, var(--wp-navy), #0f172a);">
             Explore Full Map
           </NuxtLink>
         </div>
       </div>
 
       <!-- Leaderboard Table -->
-      <div class="bg-white border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-        <div class="p-5 border-b bg-slate-50 flex items-center justify-between">
-          <h2 class="text-base font-bold text-slate-800">🏆 Top Performing Merchants</h2>
+      <div class="bg-white border border-[var(--wp-border)] rounded-sm shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-[var(--wp-border)] bg-slate-50/50 flex items-center justify-between">
+          <h2 class="text-base font-bold text-[var(--wp-navy)]">Top Performing Merchants</h2>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm text-slate-600">
-            <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b">
+            <thead class="bg-slate-50 text-[10px] uppercase text-slate-500 font-bold border-b border-[var(--wp-border)] tracking-wider">
               <tr>
-                <th class="px-6 py-4">Rank</th>
-                <th class="px-6 py-4">Store Name</th>
-                <th class="px-6 py-4 text-center">Status</th>
-                <th class="px-6 py-4 text-right">Total Orders</th>
-                <th class="px-6 py-4 text-right">Revenue</th>
-                <th class="px-6 py-4 text-right">Growth</th>
+                <th class="px-5 py-4">Rank</th>
+                <th class="px-5 py-4">Store Name</th>
+                <th class="px-5 py-4 text-center">Status</th>
+                <th class="px-5 py-4 text-right">Total Orders</th>
+                <th class="px-5 py-4 text-right">Revenue</th>
+                <th class="px-5 py-4 text-right">Growth</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="!data.tables.leaderboard.length">
-                <td colspan="6" class="px-6 py-10 text-center text-slate-400">No merchant data available</td>
+                <td colspan="6" class="px-5 py-10 text-center text-slate-400">No merchant data available</td>
               </tr>
-              <tr v-for="(m, i) in data.tables.leaderboard" :key="m.id" class="border-b last:border-b-0 hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-4 font-bold" :class="{
-                  'text-yellow-500': i === 0,
+              <tr v-for="(m, i) in data.tables.leaderboard" :key="m.id" class="border-b border-[var(--wp-border)] last:border-b-0 hover:bg-slate-50 transition-colors">
+                <td class="px-5 py-4 font-bold" :class="{
+                  'text-[var(--wp-gold)]': i === 0,
                   'text-slate-400': i === 1,
                   'text-amber-700': i === 2,
                   'text-slate-500': i > 2
                 }">#{{ i + 1 }}</td>
-                <td class="px-6 py-4 font-medium text-slate-800">{{ m.store_name }}</td>
-                <td class="px-6 py-4 text-center">
-                  <span v-if="m.verified" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">VERIFIED</span>
-                  <span v-else class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">PENDING</span>
+                <td class="px-5 py-4 font-medium text-[var(--wp-navy)]">{{ m.store_name }}</td>
+                <td class="px-5 py-4 text-center">
+                  <span v-if="m.verified" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold" style="background: rgba(212,168,67,0.1); color: var(--wp-gold-dark);">VERIFIED</span>
+                  <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">PENDING</span>
                 </td>
-                <td class="px-6 py-4 text-right">{{ m.orders.toLocaleString('id-ID') }}</td>
-                <td class="px-6 py-4 text-right font-bold text-emerald-600">{{ formatRupiah(m.revenue) }}</td>
-                <td class="px-6 py-4 text-right text-emerald-600 text-xs font-bold">+{{ m.growth }}%</td>
+                <td class="px-5 py-4 text-right">{{ m.orders.toLocaleString('id-ID') }}</td>
+                <td class="px-5 py-4 text-right font-bold text-[var(--wp-navy)]">{{ formatRupiah(m.revenue) }}</td>
+                <td class="px-5 py-4 text-right text-emerald-600 text-xs font-bold">+{{ m.growth }}%</td>
               </tr>
             </tbody>
           </table>
