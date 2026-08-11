@@ -13,8 +13,8 @@
       <!-- Logout / Mini User profile button for mobile header -->
       <div class="flex items-center gap-3">
         <NuxtLink to="/profile" v-if="user" class="flex items-center gap-2 hover:opacity-80 transition" title="Profil Saya">
-          <div v-if="user.photo_profile" class="w-7 h-7 rounded-full overflow-hidden border border-[var(--wp-border)]">
-             <img :src="user.photo_profile" alt="Profile" class="w-full h-full object-cover" />
+          <div class="w-7 h-7 rounded-full overflow-hidden border border-[var(--wp-border)] bg-white">
+             <img :src="user.photo_profile || logoSrc" alt="Profile" class="w-full h-full object-cover" />
           </div>
           <span class="text-[10px] font-bold px-2.5 py-1 rounded" style="background: rgba(212,168,67,0.08); color: var(--wp-navy);">
             {{ user.name }}
@@ -41,11 +41,8 @@
 
         <!-- User Info -->
         <NuxtLink to="/profile" v-if="user" class="mt-5 p-3 flex items-center gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer" style="background: rgba(212,168,67,0.06); border: 1px solid rgba(212,168,67,0.15); border-radius: 4px;" title="Lihat Profil">
-          <div v-if="user.photo_profile" class="w-10 h-10 rounded overflow-hidden shrink-0">
-             <img :src="user.photo_profile" alt="Profile" class="w-full h-full object-cover" />
-          </div>
-          <div v-else class="w-10 h-10 flex shrink-0 items-center justify-center text-xs font-bold uppercase" style="background: var(--wp-navy); color: var(--wp-gold); border-radius: 4px;">
-            {{ user.name?.charAt(0) || 'U' }}
+          <div class="w-10 h-10 rounded overflow-hidden shrink-0 bg-white">
+             <img :src="user.photo_profile || logoSrc" alt="Profile" class="w-full h-full object-cover p-1" />
           </div>
           <div class="overflow-hidden">
             <p class="text-xs font-bold truncate" style="color: var(--wp-text);">{{ user.name }}</p>
@@ -133,13 +130,8 @@
           <button class="p-2 transition" style="color: var(--wp-text-secondary);">
             <Icon name="heroicons:question-mark-circle" class="w-5 h-5" />
           </button>
-          <NuxtLink to="/profile" class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold shadow-sm select-none transition-transform hover:scale-105 border-2 border-transparent hover:border-[var(--wp-gold)]" style="background: linear-gradient(135deg, var(--wp-gold), var(--wp-gold-dark)); color: white;" title="Profil Saya">
-            <template v-if="user?.photo_profile">
-              <img :src="user.photo_profile" alt="Profile" class="w-full h-full object-cover" />
-            </template>
-            <template v-else>
-              {{ user?.name?.charAt(0) || 'U' }}
-            </template>
+          <NuxtLink to="/profile" class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold shadow-sm select-none transition-transform hover:scale-105 border-2 border-transparent hover:border-[var(--wp-gold)] bg-white" title="Profil Saya">
+             <img :src="user?.photo_profile || logoSrc" alt="Profile" class="w-full h-full object-cover p-0.5" />
           </NuxtLink>
         </div>
       </header>

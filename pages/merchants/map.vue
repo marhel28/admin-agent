@@ -269,6 +269,7 @@ const initMap = async () => {
       geojsonData = { type: 'FeatureCollection', features }
 
       addMapData()
+      setupInteractions()
       
       // Fit bounds
       if (features.length > 0) {
@@ -287,97 +288,106 @@ const initMap = async () => {
 const addMapData = () => {
   if (!map.value || !geojsonData) return
 
-  // Prevent re-adding if already exists (like during HMR or style switch)
-  if (map.value.getSource('merchants-cluster')) {
-    (map.value.getSource('merchants-cluster') as maplibregl.GeoJSONSource).setData(geojsonData);
-    (map.value.getSource('merchants-heat') as maplibregl.GeoJSONSource).setData(geojsonData);
-    return;
+  // 1. Source: Clustering (Supercluster Algorithm)
+  if (!map.value.getSource('merchants-cluster')) {
+    map.value.addSource('merchants-cluster', {
+      type: 'geojson',
+      data: geojsonData,
+      cluster: true,
+      clusterMaxZoom: 14,
+      clusterRadius: 60
+    })
+  } else {
+    (map.value.getSource('merchants-cluster') as maplibregl.GeoJSONSource).setData(geojsonData)
   }
 
-  // 1. Source: Clustering (Supercluster Algorithm)
-  map.value.addSource('merchants-cluster', {
-    type: 'geojson',
-    data: geojsonData,
-    cluster: true,
-    clusterMaxZoom: 14,
-    clusterRadius: 60 // Optimized radius for less mess
-  })
-
   // 2. Source: Heatmap (no clustering)
-  map.value.addSource('merchants-heat', {
-    type: 'geojson',
-    data: geojsonData
-  })
+  if (!map.value.getSource('merchants-heat')) {
+    map.value.addSource('merchants-heat', {
+      type: 'geojson',
+      data: geojsonData
+    })
+  } else {
+    (map.value.getSource('merchants-heat') as maplibregl.GeoJSONSource).setData(geojsonData)
+  }
 
   // === CLUSTER LAYERS ===
-  map.value.addLayer({
-    id: 'clusters',
-    type: 'circle',
-    source: 'merchants-cluster',
-    filter: ['has', 'point_count'],
-    paint: {
-      'circle-color': ['step', ['get', 'point_count'], '#60a5fa', 10, '#3b82f6', 50, '#1d4ed8'],
-      'circle-radius': ['step', ['get', 'point_count'], 18, 10, 24, 50, 32],
-      'circle-stroke-width': 4,
-      'circle-stroke-color': 'rgba(255, 255, 255, 0.8)'
-    },
-    layout: { visibility: activeMode.value === 'cluster' ? 'visible' : 'none' }
-  })
+  if (!map.value.getLayer('clusters')) {
+    map.value.addLayer({
+      id: 'clusters',
+      type: 'circle',
+      source: 'merchants-cluster',
+      filter: ['has', 'point_count'],
+      paint: {
+        'circle-color': ['step', ['get', 'point_count'], '#60a5fa', 10, '#3b82f6', 50, '#1d4ed8'],
+        'circle-radius': ['step', ['get', 'point_count'], 18, 10, 24, 50, 32],
+        'circle-stroke-width': 4,
+        'circle-stroke-color': 'rgba(255, 255, 255, 0.8)'
+      },
+      layout: { visibility: activeMode.value === 'cluster' ? 'visible' : 'none' }
+    })
+  }
 
-  map.value.addLayer({
-    id: 'cluster-count',
-    type: 'symbol',
-    source: 'merchants-cluster',
-    filter: ['has', 'point_count'],
-    layout: {
-      'text-field': '{point_count_abbreviated}',
-      // Omitting text-font will let MapLibre fallback to the first available font from glyphs
-      'text-size': 13,
-      visibility: activeMode.value === 'cluster' ? 'visible' : 'none'
-    },
-    paint: { 'text-color': '#ffffff' }
-  })
+  if (!map.value.getLayer('cluster-count')) {
+    map.value.addLayer({
+      id: 'cluster-count',
+      type: 'symbol',
+      source: 'merchants-cluster',
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': '{point_count_abbreviated}',
+        'text-size': 13,
+        visibility: activeMode.value === 'cluster' ? 'visible' : 'none'
+      },
+      paint: { 'text-color': '#ffffff' }
+    })
+  }
 
-  map.value.addLayer({
-    id: 'unclustered-point',
-    type: 'circle',
-    source: 'merchants-cluster',
-    filter: ['!', ['has', 'point_count']],
-    paint: {
-      'circle-color': '#f43f5e',
-      'circle-radius': 8,
-      'circle-stroke-width': 3,
-      'circle-stroke-color': '#fff'
-    },
-    layout: { visibility: activeMode.value === 'cluster' ? 'visible' : 'none' }
-  })
+  if (!map.value.getLayer('unclustered-point')) {
+    map.value.addLayer({
+      id: 'unclustered-point',
+      type: 'circle',
+      source: 'merchants-cluster',
+      filter: ['!', ['has', 'point_count']],
+      paint: {
+        'circle-color': '#f43f5e',
+        'circle-radius': 8,
+        'circle-stroke-width': 3,
+        'circle-stroke-color': '#fff'
+      },
+      layout: { visibility: activeMode.value === 'cluster' ? 'visible' : 'none' }
+    })
+  }
 
   // === HEATMAP LAYER ===
-  map.value.addLayer({
-    id: 'heatmap-layer',
-    type: 'heatmap',
-    source: 'merchants-heat',
-    maxzoom: 15,
-    paint: {
-      'heatmap-weight': 1,
-      'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 15, 3],
-      'heatmap-color': [
-        'interpolate', ['linear'], ['heatmap-density'],
-        0, 'rgba(33,102,172,0)',
-        0.2, 'rgb(103,169,207)',
-        0.4, 'rgb(209,229,240)',
-        0.6, 'rgb(253,219,199)',
-        0.8, 'rgb(239,138,98)',
-        1, 'rgb(178,24,43)'
-      ],
-      'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 5, 15, 30],
-      'heatmap-opacity': 0.8
-    },
-    layout: { visibility: activeMode.value === 'heatmap' ? 'visible' : 'none' }
-  })
+  if (!map.value.getLayer('heatmap-layer')) {
+    map.value.addLayer({
+      id: 'heatmap-layer',
+      type: 'heatmap',
+      source: 'merchants-heat',
+      maxzoom: 15,
+      paint: {
+        'heatmap-weight': 1,
+        'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 15, 3],
+        'heatmap-color': [
+          'interpolate', ['linear'], ['heatmap-density'],
+          0, 'rgba(33,102,172,0)',
+          0.2, 'rgb(103,169,207)',
+          0.4, 'rgb(209,229,240)',
+          0.6, 'rgb(253,219,199)',
+          0.8, 'rgb(239,138,98)',
+          1, 'rgb(178,24,43)'
+        ],
+        'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 5, 15, 30],
+        'heatmap-opacity': 0.8
+      },
+      layout: { visibility: activeMode.value === 'heatmap' ? 'visible' : 'none' }
+    })
+  }
+}
 
-  // INTERACTION LOGIC
-  
+const setupInteractions = () => {
+  if (!map.value) return;
   // Hover on single point
   map.value.on('mouseenter', 'unclustered-point', (e) => {
     map.value!.getCanvas().style.cursor = 'pointer'
@@ -405,7 +415,6 @@ const addMapData = () => {
 
       try {
         const source: any = map.value!.getSource('merchants-cluster')
-        // MapLibre v3 uses Promise instead of callback
         const features = await source.getClusterLeaves(clusterId, 50, 0)
         clusterLoading.value = false
         if (features) {
@@ -444,11 +453,12 @@ const switchStyle = (styleId: 'street' | 'satellite' | 'terrain' | 'dark' | 'lig
   activeStyle.value = styleId
   if (!map.value) return
   
-  map.value.setStyle(styles[styleId] as any)
   map.value.once('style.load', () => {
     // When style reloads, sources and layers are cleared by MapLibre, so we must re-add them
-    geojsonData && addMapData()
+    if (geojsonData) addMapData()
   })
+  
+  map.value.setStyle(styles[styleId] as any)
 }
 
 const switchMode = (mode: 'cluster' | 'heatmap') => {

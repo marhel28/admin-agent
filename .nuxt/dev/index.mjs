@@ -857,7 +857,7 @@ const _inlineRuntimeConfig = {
     }
   },
   "public": {
-    "apiBase": "http://localhost:8000"
+    "apiBase": "https://cctv-api.desa-sidomukti.com"
   },
   "icon": {
     "serverKnownCssClasses": []
