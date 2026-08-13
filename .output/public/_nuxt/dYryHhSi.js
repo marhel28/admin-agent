@@ -1,0 +1,1 @@
+import{_ as s,c as o,a as t,o as n}from"./ByDWGRoI.js";const r={};function a(c,e){return n(),o("div",null,[...e[0]||(e[0]=[t("h2",null,"system/logs.vue",-1)])])}const _=s(r,[["render",a]]);export{_ as default};

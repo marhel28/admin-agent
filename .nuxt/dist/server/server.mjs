@@ -431,7 +431,7 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import("./_nuxt/index-CI--5dnE.js")
+    component: () => import("./_nuxt/index-DbdQzCsa.js")
   },
   {
     name: "login",
@@ -508,12 +508,12 @@ const _routes = [
   {
     name: "merchants",
     path: "/merchants",
-    component: () => import("./_nuxt/index-CTLnUHeo.js")
+    component: () => import("./_nuxt/index-DxHhQmr7.js")
   },
   {
     name: "merchants-uuid",
     path: "/merchants/:uuid()",
-    component: () => import("./_nuxt/_uuid_-B0DxDLkO.js")
+    component: () => import("./_nuxt/_uuid_-B5So9bJ8.js")
   },
   {
     name: "analytics-catalog",

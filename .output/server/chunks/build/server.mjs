@@ -441,7 +441,7 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-CI--5dnE.mjs')
+    component: () => import('./index-DbdQzCsa.mjs')
   },
   {
     name: "login",
@@ -518,12 +518,12 @@ const _routes = [
   {
     name: "merchants",
     path: "/merchants",
-    component: () => import('./index-CTLnUHeo.mjs')
+    component: () => import('./index-DxHhQmr7.mjs')
   },
   {
     name: "merchants-uuid",
     path: "/merchants/:uuid()",
-    component: () => import('./_uuid_-B0DxDLkO.mjs')
+    component: () => import('./_uuid_-B5So9bJ8.mjs')
   },
   {
     name: "analytics-catalog",

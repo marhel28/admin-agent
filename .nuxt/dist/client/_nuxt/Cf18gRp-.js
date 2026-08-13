@@ -1,0 +1,1 @@
+import{_ as n,c as o,a as r,o as t}from"./ByDWGRoI.js";const a={};function s(c,e){return t(),o("div",null,[...e[0]||(e[0]=[r("h2",null,"ai/index.vue",-1)])])}const d=n(a,[["render",s]]);export{d as default};

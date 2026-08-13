@@ -1,0 +1,1 @@
+import{_ as t,o as a,c as o,a5 as s}from"./ByDWGRoI.js";const c={},n={class:"auth-layout"};function r(e,d){return a(),o("div",n,[s(e.$slots,"default",{},void 0,!0)])}const l=t(c,[["render",r],["__scopeId","data-v-173d0e69"]]);export{l as default};

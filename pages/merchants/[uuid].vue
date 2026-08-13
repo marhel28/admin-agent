@@ -64,9 +64,14 @@
             <h2 class="text-lg font-bold text-slate-800">{{ merchant.store_name || merchant.name }}</h2>
             <p class="text-sm text-slate-500 mb-4">{{ merchant.name }}</p>
 
-            <span class="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100 mb-6">
-              {{ merchant.category_store || 'Tanpa Kategori' }}
-            </span>
+            <div class="flex flex-wrap justify-center gap-1.5 mb-6">
+              <span class="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100">
+                {{ merchant.category_store || 'Tanpa Kategori' }}
+              </span>
+              <span v-if="merchant.store_type" class="inline-block px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold border border-purple-100">
+                {{ merchant.store_type }}
+              </span>
+            </div>
 
             <div class="space-y-3 text-left border-t pt-4">
               <div class="flex items-center gap-3 text-sm">
@@ -101,9 +106,15 @@
                 <input v-model="editForm.phone_number" type="tel" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200" />
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1">Kategori</label>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">Kategori Usaha</label>
                 <select v-model="editForm.category_store" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white">
                   <option v-for="cat in STORE_CATEGORIES" :key="cat" :value="cat">{{ cat }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">Tipe Toko / Jenis Usaha</label>
+                <select v-model="editForm.store_type" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white">
+                  <option v-for="st in STORE_TYPES" :key="st" :value="st">{{ st }}</option>
                 </select>
               </div>
               <div>
@@ -274,6 +285,7 @@ const editForm = ref({
   store_name: '',
   phone_number: '',
   category_store: '',
+  store_type: '',
   address: '',
   description: '',
 })
@@ -304,6 +316,15 @@ const STORE_CATEGORIES = [
   'Laundry & Kebersihan',
   'Marketplace & Online Shop',
   'Lainnya',
+]
+
+// Store type options (matches backend StoreType enum)
+const STORE_TYPES = [
+  'Warung Kecil',
+  'Toko Kelontong',
+  'Distributor',
+  'Toko Online',
+  'Grosir',
 ]
 
 // Delete
@@ -388,7 +409,8 @@ const startEdit = () => {
     name: merchant.value.name || '',
     store_name: merchant.value.store_name || '',
     phone_number: merchant.value.phone_number || '',
-    category_store: merchant.value.category_store || '',
+    category_store: merchant.value.category_store || 'Makanan & Minuman',
+    store_type: merchant.value.store_type || 'Warung Kecil',
     address: merchant.value.address || '',
     description: merchant.value.description || '',
   }

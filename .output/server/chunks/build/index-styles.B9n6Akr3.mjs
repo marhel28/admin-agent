@@ -1,0 +1,12 @@
+import { a as agGrid, b as agThemeQuartz } from './index-styles-2.mjs-DLpbjax6.mjs';
+
+const index_vue_vue_type_style_index_0_lang = ".custom-ag-grid.ag-theme-quartz{--ag-font-family:inherit;--ag-background-color:#fff;--ag-header-background-color:#f8fafc;--ag-header-foreground-color:#475569;--ag-odd-row-background-color:#fff;--ag-row-border-color:#f1f5f9;--ag-header-column-separator-display:none;--ag-font-size:13px;--ag-row-hover-color:#f8fafc;--ag-selected-row-background-color:#eff6ff;--ag-borders:solid;--ag-border-color:#e2e8f0;--ag-row-border-width:1px}.custom-ag-grid.ag-theme-quartz .ag-header{border-bottom:2px solid #e2e8f0!important}.custom-ag-grid.ag-theme-quartz .ag-header-cell{padding-left:14px;padding-right:14px}.custom-ag-grid.ag-theme-quartz .ag-header-cell-label{color:#475569;font-size:11px;font-weight:700!important;letter-spacing:.4px;text-transform:uppercase}.custom-ag-grid.ag-theme-quartz .ag-row{border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background-color .15s ease}.custom-ag-grid.ag-theme-quartz .ag-cell{align-items:center;display:flex;padding-left:14px;padding-right:14px}.custom-ag-grid.ag-theme-quartz .ag-cell:focus{border:none!important;outline:none!important}.custom-ag-grid.ag-theme-quartz ::-webkit-scrollbar{height:6px;width:6px}.custom-ag-grid.ag-theme-quartz ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}";
+
+const indexStyles_B9n6Akr3 = [
+  index_vue_vue_type_style_index_0_lang,
+  agGrid,
+  agThemeQuartz
+];
+
+export { indexStyles_B9n6Akr3 as default };
+//# sourceMappingURL=index-styles.B9n6Akr3.mjs.map
