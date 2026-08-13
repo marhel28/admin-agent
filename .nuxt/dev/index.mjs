@@ -2269,7 +2269,7 @@ const _X7dzuEXQh6mxeaJs3vdcXfLNb618_apL42Gs_b51hN0 = (function(nitro) {
 
 const rootDir = "E:/lombas/frontend/admin-dashboard";
 
-const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"}],"link":[],"style":[],"script":[],"noscript":[]};
+const appHead = {"meta":[{"charset":"utf-8"},{"name":"viewport","content":"width=device-width, initial-scale=1"},{"name":"description","content":"Sistem Manajemen Admin untuk UMKM"},{"property":"og:title","content":"UMKM ADMIN DASHBORD"},{"property":"og:description","content":"Sistem Manajemen Admin untuk UMKM"},{"property":"og:image","content":"/logo.png"},{"property":"og:type","content":"website"},{"name":"twitter:card","content":"summary_large_image"},{"name":"twitter:title","content":"UMKM ADMIN DASHBORD"},{"name":"twitter:description","content":"Sistem Manajemen Admin untuk UMKM"},{"name":"twitter:image","content":"/logo.png"}],"link":[{"rel":"icon","type":"image/png","href":"/logo.png"}],"style":[],"script":[],"noscript":[],"title":"UMKM ADMIN DASHBORD"};
 
 const appRootTag = "div";
 

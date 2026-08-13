@@ -1,155 +1,209 @@
 <template>
-  <div class="h-[calc(100vh-80px)] w-full flex space-x-4 animate-fade-in">
-    <!-- Main Map Container -->
-    <div class="flex-1 flex flex-col space-y-4">
-      <!-- Header & Controls -->
-      <div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border">
-        <div>
-          <h1 class="text-2xl font-extrabold tracking-tight text-slate-800">Peta Intelijen Geospasial</h1>
-          <p class="text-sm mt-1 text-slate-500">Perutean gaya Google Maps, Algoritma Supercluster, dan Heatmap.</p>
-        </div>
-        <div class="flex items-center gap-3">
-          <!-- Layer Switcher -->
-          <div class="flex bg-slate-100 p-1 rounded-xl">
-            <button @click="switchStyle('street')" :class="{'bg-white shadow-sm text-blue-600': activeStyle === 'street', 'text-slate-500': activeStyle !== 'street'}" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all">Street</button>
-            <button @click="switchStyle('satellite')" :class="{'bg-white shadow-sm text-blue-600': activeStyle === 'satellite', 'text-slate-500': activeStyle !== 'satellite'}" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all">Satellite</button>
-            <button @click="switchStyle('terrain')" :class="{'bg-white shadow-sm text-blue-600': activeStyle === 'terrain', 'text-slate-500': activeStyle !== 'terrain'}" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all">Terrain</button>
-            <button @click="switchStyle('dark')" :class="{'bg-white shadow-sm text-blue-600': activeStyle === 'dark', 'text-slate-500': activeStyle !== 'dark'}" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all">Dark</button>
-            <button @click="switchStyle('light')" :class="{'bg-white shadow-sm text-blue-600': activeStyle === 'light', 'text-slate-500': activeStyle !== 'light'}" class="px-3 py-1.5 text-xs font-bold rounded-lg transition-all">Light</button>
-          </div>
-          <!-- View Modes -->
-          <div class="flex bg-slate-100 p-1 rounded-xl">
-            <button @click="switchMode('cluster')" :class="{'bg-white shadow-sm text-emerald-600': activeMode === 'cluster', 'text-slate-500': activeMode !== 'cluster'}" class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all">Klaster</button>
-            <button @click="switchMode('heatmap')" :class="{'bg-white shadow-sm text-red-600': activeMode === 'heatmap', 'text-slate-500': activeMode !== 'heatmap'}" class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all">Heatmap</button>
-          </div>
-          <NuxtLink to="/" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-800 text-white hover:bg-slate-700 transition-colors shadow-sm ml-2">
-            &larr; Dasbor
-          </NuxtLink>
-        </div>
-      </div>
+  <div class="relative w-full h-screen -mx-4 -my-4 sm:-mx-8 sm:-my-8 overflow-hidden bg-slate-900">
+    <!-- Fullscreen Edge-to-Edge Map Container -->
+    <div ref="mapContainer" class="w-full h-full"></div>
 
-      <!-- Map -->
-      <div class="flex-1 rounded-2xl overflow-hidden border shadow-sm relative bg-slate-100">
-        <div v-if="loading" class="absolute inset-0 bg-white/80 flex items-center justify-center z-10 backdrop-blur-sm">
-          <div class="flex flex-col items-center">
-            <Icon name="heroicons:arrow-path" class="w-8 h-8 animate-spin text-blue-500 mb-2" />
-            <span class="text-sm font-bold text-slate-500">MEMUAT DATA SUPERCLUSTER...</span>
-          </div>
-        </div>
-        <div ref="mapContainer" class="w-full h-full"></div>
+    <!-- Loading Overlay -->
+    <div v-if="loading" class="absolute inset-0 bg-white/70 backdrop-blur-md flex items-center justify-center z-30">
+      <div class="flex flex-col items-center bg-white/90 px-6 py-4 rounded-2xl shadow-xl border border-slate-100">
+        <Icon name="heroicons:arrow-path" class="w-8 h-8 animate-spin text-blue-600 mb-2" />
+        <span class="text-xs font-extrabold tracking-wider text-slate-700 uppercase">Memuat Peta Intelijen...</span>
       </div>
     </div>
 
-    <!-- Right Sidebar Detail Card -->
-    <div class="w-96 flex flex-col space-y-4">
-      <div class="flex-1 bg-white rounded-2xl border shadow-sm p-6 overflow-y-auto custom-scrollbar relative">
-        <!-- Back Button for Single View (when accessed from cluster) -->
-        <button v-if="hoveredMerchant && lastViewedCluster" @click="backToCluster" class="absolute top-4 left-4 p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors z-10" title="Kembali ke daftar klaster">
+    <!-- Floating Top Bar Controls -->
+    <div class="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
+      <!-- Title Badge -->
+      <div class="pointer-events-auto bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-lg border border-slate-200/80 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-sm shrink-0">
+          <Icon name="heroicons:map" class="w-5 h-5" />
+        </div>
+        <div>
+          <h1 class="text-sm font-extrabold text-slate-800 leading-tight">Peta Intelijen Geospasial</h1>
+          <p class="text-[11px] text-slate-500 font-medium">Algoritma Supercluster & Heatmap</p>
+        </div>
+      </div>
+
+      <!-- Control Group -->
+      <div class="pointer-events-auto flex flex-wrap items-center gap-2 bg-white/90 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-slate-200/80">
+        <!-- Search & Filter Input -->
+        <div class="flex items-center gap-1.5 bg-slate-100/80 px-2.5 py-1 rounded-xl border border-slate-200/50">
+          <Icon name="heroicons:magnifying-glass" class="w-4 h-4 text-slate-400 shrink-0" />
+          <input 
+            v-model="searchQuery" 
+            @input="applyFilter"
+            type="text" 
+            placeholder="Cari toko / merchant..." 
+            class="bg-transparent text-xs text-slate-800 placeholder-slate-400 outline-none w-28 sm:w-36 font-medium"
+          />
+          <button v-if="searchQuery" @click="searchQuery = ''; applyFilter()" class="text-slate-400 hover:text-slate-600">
+            <Icon name="heroicons:x-mark" class="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <!-- Category Dropdown Filter -->
+        <div class="flex items-center gap-1 bg-slate-100/80 px-2 py-1 rounded-xl border border-slate-200/50">
+          <Icon name="heroicons:funnel" class="w-3.5 h-3.5 text-blue-600 shrink-0 ml-1" />
+          <select 
+            v-model="selectedCategory" 
+            @change="applyFilter" 
+            class="bg-transparent text-xs text-slate-700 font-bold outline-none cursor-pointer pr-1 max-w-[130px] truncate"
+          >
+            <option value="ALL">Semua Kategori</option>
+            <option v-for="cat in availableCategories" :key="cat" :value="cat">{{ cat }}</option>
+          </select>
+        </div>
+
+        <!-- Layer Switcher -->
+        <div class="flex bg-slate-100/80 p-1 rounded-xl">
+          <button @click="switchStyle('voyager')" :class="{'bg-white shadow-sm text-blue-600 font-bold': activeStyle === 'voyager', 'text-slate-600 font-medium hover:text-slate-900': activeStyle !== 'voyager'}" class="px-3 py-1.5 text-xs rounded-lg transition-all">Voyager</button>
+          <button @click="switchStyle('positron')" :class="{'bg-white shadow-sm text-blue-600 font-bold': activeStyle === 'positron', 'text-slate-600 font-medium hover:text-slate-900': activeStyle !== 'positron'}" class="px-3 py-1.5 text-xs rounded-lg transition-all">Light</button>
+          <button @click="switchStyle('dark')" :class="{'bg-white shadow-sm text-blue-600 font-bold': activeStyle === 'dark', 'text-slate-600 font-medium hover:text-slate-900': activeStyle !== 'dark'}" class="px-3 py-1.5 text-xs rounded-lg transition-all">Dark</button>
+          <button @click="switchStyle('satellite')" :class="{'bg-white shadow-sm text-blue-600 font-bold': activeStyle === 'satellite', 'text-slate-600 font-medium hover:text-slate-900': activeStyle !== 'satellite'}" class="px-3 py-1.5 text-xs rounded-lg transition-all">Satelit</button>
+          <button @click="switchStyle('hybrid')" :class="{'bg-white shadow-sm text-blue-600 font-bold': activeStyle === 'hybrid', 'text-slate-600 font-medium hover:text-slate-900': activeStyle !== 'hybrid'}" class="px-3 py-1.5 text-xs rounded-lg transition-all">Hybrid</button>
+        </div>
+
+        <!-- Divider -->
+        <div class="h-6 w-px bg-slate-200 my-auto"></div>
+
+        <!-- View Modes -->
+        <div class="flex bg-slate-100/80 p-1 rounded-xl">
+          <button @click="switchMode('cluster')" :class="{'bg-white shadow-sm text-emerald-600 font-bold': activeMode === 'cluster', 'text-slate-600 font-medium hover:text-slate-900': activeMode !== 'cluster'}" class="px-3 py-1.5 text-xs rounded-lg transition-all flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Klaster
+          </button>
+          <button @click="switchMode('heatmap')" :class="{'bg-white shadow-sm text-red-600 font-bold': activeMode === 'heatmap', 'text-slate-600 font-medium hover:text-slate-900': activeMode !== 'heatmap'}" class="px-3 py-1.5 text-xs rounded-lg transition-all flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Heatmap
+          </button>
+        </div>
+
+        <!-- Return button -->
+        <NuxtLink to="/" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm ml-1 flex items-center gap-1">
+          &larr; Dasbor
+        </NuxtLink>
+      </div>
+    </div>
+
+    <!-- Floating Intelligence Panel (Right Sidebar) -->
+    <div class="absolute top-20 right-4 bottom-4 z-20 w-80 sm:w-96 flex flex-col pointer-events-auto transition-all duration-300">
+      <div class="flex-1 bg-white/95 backdrop-blur-xl rounded-2xl border border-slate-200/80 shadow-2xl p-5 overflow-y-auto custom-scrollbar relative flex flex-col">
+        <!-- Back Button for Single View -->
+        <button v-if="hoveredMerchant && lastViewedCluster" @click="backToCluster" class="absolute top-4 left-4 p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full transition-colors z-10 shadow-sm" title="Kembali ke daftar klaster">
           <Icon name="heroicons:arrow-left" class="w-4 h-4" />
         </button>
 
-        <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-6 text-center">Panel Intelijen</h2>
+        <div class="flex items-center justify-between border-b pb-3 mb-4">
+          <h2 class="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-2">
+            <Icon name="heroicons:information-circle" class="w-4 h-4 text-blue-500" />
+            Panel Intelijen
+          </h2>
+          <span class="text-[10px] bg-blue-50 text-blue-600 font-bold px-2 py-0.5 rounded-full border border-blue-100">Live Geo</span>
+        </div>
         
         <!-- Cluster View -->
-        <div v-if="hoveredCluster" class="animate-fade-in-up">
-          <div class="bg-blue-50 text-blue-600 font-bold px-4 py-3 rounded-xl mb-4 border border-blue-100 flex justify-between items-center">
-            <span>Kepadatan Klaster</span>
-            <span class="bg-blue-600 text-white px-2 py-1 rounded-lg text-xs">{{ hoveredCluster.point_count }} Pedagang</span>
+        <div v-if="hoveredCluster" class="animate-fade-in-up flex-1">
+          <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold px-4 py-3 rounded-xl mb-4 shadow-md flex justify-between items-center">
+            <span class="text-xs tracking-wide">Kepadatan Area</span>
+            <span class="bg-white/20 backdrop-blur-md text-white px-2.5 py-0.5 rounded-lg text-xs font-extrabold">{{ hoveredCluster.point_count }} Merchant</span>
           </div>
           
-          <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Titik dalam klaster ini (Klik untuk info):</p>
+          <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Daftar Merchant (Klik untuk zoom):</p>
           
           <!-- Loading state -->
-          <div v-if="clusterLoading" class="flex flex-col items-center justify-center py-10">
-            <Icon name="heroicons:arrow-path" class="w-6 h-6 animate-spin text-blue-400 mb-2" />
+          <div v-if="clusterLoading" class="flex flex-col items-center justify-center py-12">
+            <Icon name="heroicons:arrow-path" class="w-6 h-6 animate-spin text-blue-500 mb-2" />
             <p class="text-xs text-slate-400 font-medium">Mengekstrak data titik...</p>
           </div>
 
           <!-- Error state -->
-          <div v-else-if="clusterError" class="bg-red-50 text-red-500 p-4 rounded-xl text-sm font-medium border border-red-100">
+          <div v-else-if="clusterError" class="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-medium border border-red-100">
             {{ clusterError }}
           </div>
           
           <!-- List -->
-          <div v-else class="space-y-3">
-            <div v-for="m in hoveredClusterMerchants" :key="m.uuid" @click="selectMerchantFromCluster(m)" class="flex gap-3 items-center p-3 hover:bg-blue-50 bg-slate-50 rounded-xl border border-transparent hover:border-blue-200 transition-all cursor-pointer shadow-sm group">
-              <img v-if="m.photo_profile" :src="m.photo_profile" class="w-10 h-10 rounded-full object-cover shadow-sm shrink-0" />
-              <div v-else class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 shrink-0 border">
-                <Icon name="heroicons:building-storefront" class="w-5 h-5" />
+          <div v-else class="space-y-2.5">
+            <div v-for="m in hoveredClusterMerchants" :key="m.uuid" @click="selectMerchantFromCluster(m)" class="flex gap-3 items-center p-2.5 hover:bg-blue-50/80 bg-slate-50/80 rounded-xl border border-slate-100 hover:border-blue-200 transition-all cursor-pointer shadow-sm group">
+              <img v-if="m.photo_profile" :src="m.photo_profile" class="w-9 h-9 rounded-full object-cover shadow-sm shrink-0 border" />
+              <div v-else class="w-9 h-9 bg-white rounded-full flex items-center justify-center text-slate-400 shrink-0 border">
+                <Icon name="heroicons:building-storefront" class="w-4 h-4" />
               </div>
               <div class="min-w-0 flex-1">
-                <h4 class="font-bold text-sm text-slate-800 truncate group-hover:text-blue-700 transition-colors">{{ m.store_name || m.name || 'Toko Tidak Diketahui' }}</h4>
-                <p class="text-xs text-slate-500 truncate">{{ m.category_store || 'Tanpa Kategori' }}</p>
+                <h4 class="font-bold text-xs text-slate-800 truncate group-hover:text-blue-600 transition-colors">{{ m.store_name || m.name || 'Toko Tidak Diketahui' }}</h4>
+                <p class="text-[11px] text-slate-500 truncate">{{ m.category_store || 'Tanpa Kategori' }}</p>
               </div>
               <Icon name="heroicons:chevron-right" class="w-4 h-4 text-slate-300 group-hover:text-blue-500 shrink-0 transition-colors" />
             </div>
             
-            <div v-if="hoveredCluster.point_count > hoveredClusterMerchants.length && hoveredClusterMerchants.length > 0" class="text-center mt-4">
-              <p class="text-xs text-slate-400 italic">+ {{ hoveredCluster.point_count - hoveredClusterMerchants.length }} pedagang lainnya (Perbesar untuk memisahkan)</p>
-            </div>
-            
-            <div v-if="hoveredClusterMerchants.length === 0" class="text-center mt-4">
-              <p class="text-xs text-slate-400 italic">Tidak ada properti titik ditemukan. Mungkin telah disaring.</p>
+            <div v-if="hoveredCluster.point_count > hoveredClusterMerchants.length && hoveredClusterMerchants.length > 0" class="text-center mt-3">
+              <p class="text-[11px] text-slate-400 italic font-medium">+ {{ hoveredCluster.point_count - hoveredClusterMerchants.length }} merchant lainnya (Zoom mendekat)</p>
             </div>
           </div>
         </div>
 
         <!-- Single Merchant View -->
-        <div v-else-if="hoveredMerchant" class="animate-fade-in-up">
-          <div class="w-20 h-20 rounded-full border-4 border-blue-50 bg-slate-100 mx-auto mb-4 overflow-hidden shadow-md">
+        <div v-else-if="hoveredMerchant" class="animate-fade-in-up flex-1">
+          <div class="w-16 h-16 rounded-full border-2 border-blue-500/20 bg-slate-100 mx-auto mb-3 overflow-hidden shadow-lg">
             <img v-if="hoveredMerchant.photo_profile" :src="hoveredMerchant.photo_profile" class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex items-center justify-center text-slate-300">
-              <Icon name="heroicons:building-storefront" class="w-10 h-10" />
+            <div v-else class="w-full h-full flex items-center justify-center text-slate-400 bg-white">
+              <Icon name="heroicons:building-storefront" class="w-8 h-8" />
             </div>
           </div>
           
-          <h3 class="text-xl font-bold text-center text-slate-800 mb-1">{{ hoveredMerchant.store_name || hoveredMerchant.name }}</h3>
-          <div class="flex justify-center mb-6">
-            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 font-bold text-[10px] uppercase rounded-full border border-emerald-100">
-              {{ hoveredMerchant.category_store || 'Titik Terverifikasi' }}
+          <h3 class="text-lg font-extrabold text-center text-slate-800 mb-1 leading-snug">{{ hoveredMerchant.store_name || hoveredMerchant.name }}</h3>
+          <div class="flex flex-wrap justify-center gap-1.5 mb-5">
+            <span class="px-2.5 py-0.5 bg-blue-50 text-blue-700 font-extrabold text-[10px] uppercase tracking-wider rounded-full border border-blue-200 shadow-sm flex items-center gap-1">
+              <Icon name="heroicons:tag" class="w-3 h-3 text-blue-500" />
+              {{ hoveredMerchant.category_store || 'Makanan & Minuman' }}
+            </span>
+            <span v-if="hoveredMerchant.store_type" class="px-2.5 py-0.5 bg-purple-50 text-purple-700 font-extrabold text-[10px] uppercase tracking-wider rounded-full border border-purple-200 shadow-sm flex items-center gap-1">
+              <Icon name="heroicons:building-storefront" class="w-3 h-3 text-purple-500" />
+              {{ hoveredMerchant.store_type }}
             </span>
           </div>
 
-          <div class="space-y-4 text-sm">
-            <div>
-              <p class="text-xs font-bold text-slate-400 mb-1">Nama Pemilik</p>
-              <p class="font-medium text-slate-700 flex items-center gap-2">
-                <Icon name="heroicons:user" class="w-4 h-4 text-slate-400" />
+          <div class="space-y-3.5 text-xs">
+            <div class="bg-slate-50/80 p-3 rounded-xl border border-slate-100">
+              <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Nama Pemilik</p>
+              <p class="font-semibold text-slate-700 flex items-center gap-2">
+                <Icon name="heroicons:user" class="w-4 h-4 text-blue-500" />
                 {{ hoveredMerchant.name }}
               </p>
             </div>
-            <div class="border-t pt-4">
-              <p class="text-xs font-bold text-slate-400 mb-1">Info Kontak</p>
-              <p class="font-medium text-slate-700 flex items-center gap-2 mb-2">
+            
+            <div class="bg-slate-50/80 p-3 rounded-xl border border-slate-100 space-y-2">
+              <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Kontak & Detail</p>
+              <p class="font-medium text-slate-700 flex items-center gap-2">
                 <Icon name="heroicons:phone" class="w-4 h-4 text-emerald-500" />
                 {{ hoveredMerchant.phone_number || 'Tidak ada telepon' }}
               </p>
-              <p class="font-medium text-slate-700 flex items-center gap-2 text-xs">
-                <Icon name="heroicons:envelope" class="w-4 h-4 text-slate-400" />
+              <p class="font-medium text-slate-700 flex items-center gap-2 text-[11px] truncate">
+                <Icon name="heroicons:envelope" class="w-4 h-4 text-slate-400 shrink-0" />
                 {{ hoveredMerchant.email }}
               </p>
             </div>
-            <div class="border-t pt-4">
-              <p class="text-xs font-bold text-slate-400 mb-1">Alamat Terdaftar</p>
+
+            <div class="bg-slate-50/80 p-3 rounded-xl border border-slate-100">
+              <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Alamat Terdaftar</p>
               <p class="text-xs font-medium text-slate-600 leading-relaxed flex items-start gap-2">
-                <Icon name="heroicons:map-pin" class="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-                {{ hoveredMerchant.address || 'Alamat tidak tersedia dalam database.' }}
+                <Icon name="heroicons:map-pin" class="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                {{ hoveredMerchant.address || 'Alamat belum diatur dalam database.' }}
               </p>
             </div>
-            <div class="border-t pt-4">
-              <p class="text-xs font-bold text-slate-400 mb-1">Koordinat</p>
-              <p class="font-mono text-xs text-blue-600 bg-blue-50 p-2 rounded-lg text-center">
+
+            <div class="bg-slate-50/80 p-3 rounded-xl border border-slate-100">
+              <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Koordinat Presisi</p>
+              <p class="font-mono text-[11px] text-blue-700 font-bold bg-blue-50 p-2 rounded-lg text-center border border-blue-100">
                 {{ hoveredMerchant.latitude?.toFixed(5) }}, {{ hoveredMerchant.longitude?.toFixed(5) }}
               </p>
             </div>
           </div>
         </div>
 
-        <div v-else class="flex flex-col items-center justify-center h-64 text-center">
-          <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-            <Icon name="heroicons:cursor-arrow-rays" class="w-8 h-8 text-slate-300" />
+        <div v-else class="flex flex-col items-center justify-center my-auto py-12 text-center">
+          <div class="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mb-3 border border-blue-100 text-blue-500">
+            <Icon name="heroicons:cursor-arrow-rays" class="w-7 h-7 animate-bounce" />
           </div>
-          <p class="text-sm font-bold text-slate-400">Arahkan kursor ke klaster atau titik di peta<br/>untuk melihat intelijen.</p>
+          <p class="text-xs font-bold text-slate-600 mb-1">Eksplorasi Peta</p>
+          <p class="text-[11px] text-slate-400 leading-relaxed max-w-[200px]">Arahkan kursor ke titik atau klaster untuk menampilkan intelijen lokasi.</p>
         </div>
       </div>
     </div>
@@ -166,8 +220,13 @@ const mapContainer = ref<HTMLElement | null>(null)
 const map = shallowRef<maplibregl.Map | null>(null)
 const loading = ref(true)
 
-const activeStyle = ref('street')
+const activeStyle = ref('voyager')
 const activeMode = ref('cluster')
+
+// Search & Category Filter State
+const searchQuery = ref('')
+const selectedCategory = ref('ALL')
+const availableCategories = ref<string[]>([])
 
 // Intel Panel State
 const hoveredMerchant = ref<any>(null)
@@ -177,46 +236,29 @@ const clusterLoading = ref(false)
 const clusterError = ref('')
 const lastViewedCluster = ref<any>(null)
 
+let rawMerchantsData: any[] = []
 let geojsonData: any = null
 
 const GLYPHS_URL = "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf"
 
 const styles = {
-  street: {
+  voyager: {
     version: 8,
     glyphs: GLYPHS_URL,
     sources: {
-      'gmaps-street': {
+      'carto-voyager': {
         type: 'raster',
-        tiles: ['https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}'],
-        tileSize: 256
+        tiles: [
+          'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+          'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+          'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+          'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+        ],
+        tileSize: 256,
+        attribution: '&copy; CARTO &copy; OpenStreetMap'
       }
     },
-    layers: [{ id: 'base-layer', type: 'raster', source: 'gmaps-street', minzoom: 0, maxzoom: 22 }]
-  },
-  satellite: {
-    version: 8,
-    glyphs: GLYPHS_URL,
-    sources: {
-      'gmaps-hybrid': {
-        type: 'raster',
-        tiles: ['https://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}'],
-        tileSize: 256
-      }
-    },
-    layers: [{ id: 'base-layer', type: 'raster', source: 'gmaps-hybrid', minzoom: 0, maxzoom: 22 }]
-  },
-  terrain: {
-    version: 8,
-    glyphs: GLYPHS_URL,
-    sources: {
-      'gmaps-terrain': {
-        type: 'raster',
-        tiles: ['https://mt0.google.com/vt/lyrs=p&hl=en&x={x}&y={y}&z={z}'],
-        tileSize: 256
-      }
-    },
-    layers: [{ id: 'base-layer', type: 'raster', source: 'gmaps-terrain', minzoom: 0, maxzoom: 22 }]
+    layers: [{ id: 'base-layer', type: 'raster', source: 'carto-voyager', minzoom: 0, maxzoom: 20 }]
   },
   dark: {
     version: 8,
@@ -224,23 +266,106 @@ const styles = {
     sources: {
       'carto-dark': {
         type: 'raster',
-        tiles: ['https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png'],
-        tileSize: 256
+        tiles: [
+          'https://a.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png',
+          'https://b.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png',
+          'https://c.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png',
+          'https://d.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png'
+        ],
+        tileSize: 256,
+        attribution: '&copy; CARTO'
       }
     },
-    layers: [{ id: 'base-layer', type: 'raster', source: 'carto-dark', minzoom: 0, maxzoom: 22 }]
+    layers: [{ id: 'base-layer', type: 'raster', source: 'carto-dark', minzoom: 0, maxzoom: 20 }]
   },
-  light: {
+  positron: {
     version: 8,
     glyphs: GLYPHS_URL,
     sources: {
-      'carto-light': {
+      'carto-positron': {
         type: 'raster',
-        tiles: ['https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png'],
+        tiles: [
+          'https://a.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}@2x.png',
+          'https://b.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}@2x.png',
+          'https://c.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}@2x.png',
+          'https://d.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}@2x.png'
+        ],
+        tileSize: 256,
+        attribution: '&copy; CARTO'
+      }
+    },
+    layers: [{ id: 'base-layer', type: 'raster', source: 'carto-positron', minzoom: 0, maxzoom: 20 }]
+  },
+  satellite: {
+    version: 8,
+    glyphs: GLYPHS_URL,
+    sources: {
+      'esri-satellite': {
+        type: 'raster',
+        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+        tileSize: 256,
+        attribution: '&copy; Esri & Maxar'
+      }
+    },
+    layers: [{ id: 'base-layer', type: 'raster', source: 'esri-satellite', minzoom: 0, maxzoom: 19 }]
+  },
+  hybrid: {
+    version: 8,
+    glyphs: GLYPHS_URL,
+    sources: {
+      'gmaps-hybrid': {
+        type: 'raster',
+        tiles: ['https://mt1.google.com/vt/lyrs=y&hl=id&x={x}&y={y}&z={z}'],
         tileSize: 256
       }
     },
-    layers: [{ id: 'base-layer', type: 'raster', source: 'carto-light', minzoom: 0, maxzoom: 22 }]
+    layers: [{ id: 'base-layer', type: 'raster', source: 'gmaps-hybrid', minzoom: 0, maxzoom: 20 }]
+  }
+}
+
+const applyFilter = () => {
+  if (!rawMerchantsData) return
+
+  const query = searchQuery.value.trim().toLowerCase()
+  const category = selectedCategory.value
+
+  const filtered = rawMerchantsData.filter((m: any) => {
+    if (!m.longitude || !m.latitude) return false
+    
+    // Category filter check
+    const matchesCategory = category === 'ALL' || m.category_store === category
+    
+    // Text search query check
+    const nameMatch = (m.store_name || '').toLowerCase().includes(query) || (m.name || '').toLowerCase().includes(query)
+    const categoryMatch = (m.category_store || '').toLowerCase().includes(query)
+    const addressMatch = (m.address || '').toLowerCase().includes(query)
+    const matchesSearch = !query || nameMatch || categoryMatch || addressMatch
+
+    return matchesCategory && matchesSearch
+  })
+
+  const features = filtered.map((m: any) => ({
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: [Number(m.longitude), Number(m.latitude)] },
+    properties: m
+  }))
+
+  geojsonData = { type: 'FeatureCollection', features }
+
+  // Update map sources dynamically
+  if (map.value) {
+    const clusterSource: any = map.value.getSource('merchants-cluster')
+    if (clusterSource) clusterSource.setData(geojsonData)
+    
+    const heatSource: any = map.value.getSource('merchants-heat')
+    if (heatSource) heatSource.setData(geojsonData)
+
+    // Adjust bounds to fit filtered points
+    if (features.length > 0) {
+      const bounds = new maplibregl.LngLatBounds()
+      features.forEach((f: any) => bounds.extend(f.geometry.coordinates))
+      map.value.fitBounds(bounds, { padding: 80, maxZoom: 14 })
+    }
   }
 }
 
@@ -249,7 +374,7 @@ const initMap = async () => {
 
   map.value = new maplibregl.Map({
     container: mapContainer.value,
-    style: styles.street as any,
+    style: styles.voyager as any,
     center: [106.827153, -6.175110], // Jakarta
     zoom: 5
   })
@@ -259,8 +384,16 @@ const initMap = async () => {
   map.value.on('load', async () => {
     try {
       const merchants = await api.get('/admin/analytics/merchants-map')
-      
-      const features = merchants.filter((m: any) => m.longitude && m.latitude).map((m: any) => ({
+      rawMerchantsData = merchants || []
+
+      // Extract unique categories
+      const categoriesSet = new Set<string>()
+      rawMerchantsData.forEach((m: any) => {
+        if (m.category_store) categoriesSet.add(m.category_store)
+      })
+      availableCategories.value = Array.from(categoriesSet).sort()
+
+      const features = rawMerchantsData.filter((m: any) => m.longitude && m.latitude).map((m: any) => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [Number(m.longitude), Number(m.latitude)] },
         properties: m
@@ -449,7 +582,7 @@ const setupInteractions = () => {
   })
 }
 
-const switchStyle = (styleId: 'street' | 'satellite' | 'terrain' | 'dark' | 'light') => {
+const switchStyle = (styleId: 'voyager' | 'positron' | 'dark' | 'satellite' | 'hybrid') => {
   activeStyle.value = styleId
   if (!map.value) return
   

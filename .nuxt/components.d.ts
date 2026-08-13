@@ -15,6 +15,7 @@ type LazyComponent<T> = DefineComponent<HydrationStrategies, {}, {}, {}, {}, {},
 
 
 export const KpiCard: typeof import("../components/KpiCard.vue")['default']
+export const MerchantLocationEdit: typeof import("../components/MerchantLocationEdit.vue")['default']
 export const MiniMap: typeof import("../components/MiniMap.vue")['default']
 export const CardsMetricCard: typeof import("../components/cards/MetricCard.vue")['default']
 export const FlowAgentFlow: typeof import("../components/flow/AgentFlow.vue")['default']
@@ -46,6 +47,7 @@ export const Html: typeof import("../node_modules/nuxt/dist/head/runtime/compone
 export const Body: typeof import("../node_modules/nuxt/dist/head/runtime/components")['Body']
 export const NuxtIsland: typeof import("../node_modules/nuxt/dist/app/components/nuxt-island")['default']
 export const LazyKpiCard: LazyComponent<typeof import("../components/KpiCard.vue")['default']>
+export const LazyMerchantLocationEdit: LazyComponent<typeof import("../components/MerchantLocationEdit.vue")['default']>
 export const LazyMiniMap: LazyComponent<typeof import("../components/MiniMap.vue")['default']>
 export const LazyCardsMetricCard: LazyComponent<typeof import("../components/cards/MetricCard.vue")['default']>
 export const LazyFlowAgentFlow: LazyComponent<typeof import("../components/flow/AgentFlow.vue")['default']>
