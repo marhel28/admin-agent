@@ -441,7 +441,7 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-CEpaTe44.mjs')
+    component: () => import('./index-CI--5dnE.mjs')
   },
   {
     name: "login",
@@ -488,7 +488,7 @@ const _routes = [
   {
     name: "merchants-map",
     path: "/merchants/map",
-    component: () => import('./map-CAaGFRap.mjs')
+    component: () => import('./map-Cxsw8TyH.mjs')
   },
   {
     name: "merchants-new",

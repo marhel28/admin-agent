@@ -189,119 +189,102 @@ const gridData = ref([])
 const gridSearch = ref('')
 
 const colDefs = ref([
-{ 
-  field: 'store_name', 
-  headerName: 'Merchant Entity', 
-  flex: 2, 
-  filter: true, 
-  sortable: true,
-  cellRenderer: (p) => {
-    const initials = (p.value || '?').substring(0, 2).toUpperCase()
-    const name = p.value || 'N/A'
-    const subtitle = p.data.email || 'No email'
-    
-    // Check if photo exists
-    const imgHtml = p.data.photo_profile 
-      ? `<img src="${p.data.photo_profile}" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" />`
-      : `<div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">${initials}</div>`
-    
-    return `<div style="display: flex; align-items: center; gap: 14px; height: 100%; padding: 4px 0;">
-              ${imgHtml}
-              <div style="display: flex; flex-direction: column; justify-content: center; line-height: 1.3;">
-                <span style="font-weight: 800; color: #0f172a; font-size: 13px;">${name}</span>
-                <span style="font-size: 11px; color: #64748b; font-weight: 500;">${subtitle}</span>
-              </div>
-            </div>`
-  }
-},
-{ 
-  field: 'name', 
-  headerName: 'Owner', 
-  flex: 1.2, 
-  filter: true, 
-  sortable: true,
-  cellRenderer: (p) => {
-    return `<div style="display: flex; align-items: center; gap: 6px; height: 100%; color: #334155; font-weight: 600;">
-              <svg style="width: 14px; height: 14px; color: #94a3b8;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-              ${p.value || 'N/A'}
-            </div>`
-  }
-},
-{ 
-  field: 'category_store', 
-  headerName: 'Category', 
-  flex: 1, 
-  filter: true, 
-  sortable: true,
-  cellRenderer: (p) => {
-    if (!p.value) return '<span style="color: #94a3b8; font-style: italic; font-size: 12px;">Uncategorized</span>'
-    return `<div style="display: flex; align-items: center; height: 100%;">
-              <span style="background: linear-gradient(to right, #f8fafc, #f1f5f9); color: #475569; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #e2e8f0; text-transform: uppercase; letter-spacing: 0.5px;">
-                ${p.value}
-              </span>
-            </div>`
-  }
-},
-{
-  field: 'is_verified',
-  headerName: 'Status',
-  flex: 0.8,
-  sortable: true,
-  cellRenderer: (p) => {
-    // Mock status logic if is_verified is not directly available, but we assume it might be.
-    // We'll use a glowing badge effect.
-    const isVerified = p.value === true || p.data.status === 'active' || true; // Fallback to Active for visual demo
-    if (isVerified) {
+  { 
+    field: 'store_name', 
+    headerName: 'MERCHANT / USAMA', 
+    flex: 2.2, 
+    filter: true, 
+    sortable: true,
+    cellRenderer: (p: any) => {
+      const initials = (p.value || '?').substring(0, 2).toUpperCase()
+      const name = p.value || p.data.name || 'Merchant Tanpa Nama'
+      const email = p.data.email || 'Tidak ada email'
+      
+      const imgHtml = p.data.photo_profile 
+        ? `<img src="${p.data.photo_profile}" style="width: 38px; height: 38px; border-radius: 12px; object-fit: cover; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.06);" />`
+        : `<div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #2563eb, #4f46e5); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; box-shadow: 0 2px 5px rgba(37,99,235,0.25);">${initials}</div>`
+      
+      return `<div style="display: flex; align-items: center; gap: 12px; height: 100%; padding: 4px 0;">
+                ${imgHtml}
+                <div style="display: flex; flex-direction: column; justify-content: center; line-height: 1.35; overflow: hidden;">
+                  <span style="font-weight: 800; color: #0f172a; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</span>
+                  <span style="font-size: 11px; color: #64748b; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${email}</span>
+                </div>
+              </div>`
+    }
+  },
+  { 
+    field: 'name', 
+    headerName: 'PEMILIK', 
+    flex: 1.3, 
+    filter: true, 
+    sortable: true,
+    cellRenderer: (p: any) => {
+      return `<div style="display: flex; align-items: center; gap: 8px; height: 100%; color: #334155; font-weight: 600; font-size: 12.5px;">
+                <div style="width: 26px; height: 26px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; shrink: 0;">
+                  <svg style="width: 14px; height: 14px; color: #64748b;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                </div>
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.value || 'N/A'}</span>
+              </div>`
+    }
+  },
+  { 
+    field: 'category_store', 
+    headerName: 'KATEGORI USAHA', 
+    flex: 1.4, 
+    filter: true, 
+    sortable: true,
+    cellRenderer: (p: any) => {
+      if (!p.value) return '<span style="color: #94a3b8; font-style: italic; font-size: 11.5px;">Tanpa Kategori</span>'
       return `<div style="display: flex; align-items: center; height: 100%;">
-                <span style="display: flex; align-items: center; gap: 6px; background-color: #ecfdf5; color: #059669; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid #a7f3d0; text-transform: uppercase;">
-                  <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #10b981; box-shadow: 0 0 6px #10b981;"></span>
-                  ACTIVE
+                <span style="background: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #bfdbfe; text-transform: uppercase; tracking-wider: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  ${p.value}
                 </span>
               </div>`
     }
-    return `<div style="display: flex; align-items: center; height: 100%;">
-                <span style="display: flex; align-items: center; gap: 6px; background-color: #fffbeb; color: #d97706; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid #fde68a; text-transform: uppercase;">
-                  <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #f59e0b;"></span>
-                  PENDING
-                </span>
-              </div>`
-  }
-},
-{ 
-  field: 'phone_number', 
-  headerName: 'Contact', 
-  flex: 1.2,
-  cellRenderer: (p) => {
-    if (!p.value) return '<span style="color: #cbd5e1;">-</span>'
-    return `<div style="display: flex; align-items: center; gap: 6px; color: #0f172a; font-weight: 600; font-family: monospace; font-size: 13px; height: 100%;">
-              <svg style="width: 14px; height: 14px; color: #10b981;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
-              ${p.value}
-            </div>`
-  }
-},
-{ 
-  field: 'actions', 
-  headerName: '', 
-  flex: 0.5, 
-  sortable: false, 
-  filter: false,
-  cellRenderer: (p) => {
-    return `<div style="display: flex; align-items: center; justify-content: flex-end; height: 100%;">
-              <button style="background: transparent; border: none; cursor: pointer; color: #64748b; padding: 6px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a';" onmouseout="this.style.background='transparent'; this.style.color='#64748b';">
-                <svg style="width: 18px; height: 18px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+  },
+  {
+    field: 'is_verified',
+    headerName: 'STATUS REGISTRASI',
+    flex: 1.1,
+    sortable: true,
+    cellRenderer: (p: any) => {
+      const isVerified = p.value !== false && p.data.is_verified !== false
+      if (isVerified) {
+        return `<div style="display: flex; align-items: center; height: 100%;">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; background-color: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid #a7f3d0;">
+                    <span style="width: 7px; height: 7px; border-radius: 50%; background-color: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+                    TERVERIFIKASI
+                  </span>
+                </div>`
+      }
+      return `<div style="display: flex; align-items: center; height: 100%;">
+                  <span style="display: inline-flex; align-items: center; gap: 6px; background-color: #fffbeb; color: #b45309; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid #fde68a;">
+                    <span style="width: 7px; height: 7px; border-radius: 50%; background-color: #f59e0b;"></span>
+                    MENUNGGU
+                  </span>
+                </div>`
+    }
+  },
+  { 
+    field: 'phone_number', 
+    headerName: 'KONTAK / TELEPON', 
+    flex: 1.3,
+    cellRenderer: (p: any) => {
+      if (!p.value) return '<span style="color: #cbd5e1; font-style: italic;">Tidak ada</span>'
+      return `<div style="display: flex; align-items: center; gap: 6px; color: #0f172a; font-weight: 700; font-family: monospace; font-size: 12.5px; height: 100%;">
+                <svg style="width: 14px; height: 14px; color: #10b981;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-              </button>
-            </div>`
+                ${p.value}
+              </div>`
+    }
   }
-}
 ])
 
 const defaultColDef = ref({
-resizable: true,
-minWidth: 100,
+  resizable: true,
+  minWidth: 120,
 })
 
 const formatRupiah = (value: number) => {
@@ -384,54 +367,61 @@ return {
 </script>
 
 <style>
-/* AG Grid custom overrides for Premium Aesthetics */
+/* AG Grid custom overrides for Premium Aesthetics & Maximum Readability */
 .custom-ag-grid.ag-theme-quartz {
---ag-font-family: inherit;
---ag-background-color: transparent;
---ag-header-background-color: #f8fafc;
---ag-header-foreground-color: #475569;
---ag-odd-row-background-color: #fafaf9;
---ag-row-border-color: #f1f5f9;
---ag-header-column-separator-display: none;
---ag-font-size: 13px;
---ag-row-hover-color: #f1f5f9;
---ag-selected-row-background-color: #eff6ff;
---ag-borders: none;
---ag-row-border-width: 1px;
+  --ag-font-family: inherit;
+  --ag-background-color: #ffffff;
+  --ag-header-background-color: #f8fafc;
+  --ag-header-foreground-color: #334155;
+  --ag-odd-row-background-color: #f8fafc;
+  --ag-row-border-color: #e2e8f0;
+  --ag-header-column-separator-display: block;
+  --ag-header-column-separator-color: #cbd5e1;
+  --ag-font-size: 13px;
+  --ag-row-hover-color: #f1f5f9;
+  --ag-selected-row-background-color: #eff6ff;
+  --ag-borders: solid;
+  --ag-border-color: #e2e8f0;
+  --ag-row-border-width: 1px;
 }
 
 .custom-ag-grid.ag-theme-quartz .ag-header {
-border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid #cbd5e1 !important;
 }
 
 .custom-ag-grid.ag-theme-quartz .ag-header-cell-label {
-font-weight: 800 !important;
-letter-spacing: 0.5px;
-text-transform: uppercase;
-font-size: 11px;
+  font-weight: 800 !important;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #1e293b;
 }
 
 .custom-ag-grid.ag-theme-quartz .ag-row {
-transition: background-color 0.2s ease;
-border-bottom-style: dashed;
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .custom-ag-grid.ag-theme-quartz .ag-row:hover {
-border-left: 3px solid #3B82F6;
+  background-color: #f1f5f9 !important;
+}
+
+.custom-ag-grid.ag-theme-quartz .ag-cell {
+  display: flex;
+  align-items: center;
 }
 
 .custom-ag-grid.ag-theme-quartz .ag-cell:focus {
-border: none !important;
-outline: none !important;
+  border: none !important;
+  outline: none !important;
 }
 
-/* Hide scrollbar for a cleaner look if desired, or style it */
 .custom-ag-grid.ag-theme-quartz ::-webkit-scrollbar {
-width: 8px;
-height: 8px;
+  width: 8px;
+  height: 8px;
 }
 .custom-ag-grid.ag-theme-quartz ::-webkit-scrollbar-thumb {
-background: #cbd5e1;
-border-radius: 4px;
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 </style>

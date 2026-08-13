@@ -431,7 +431,7 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import("./_nuxt/index-CEpaTe44.js")
+    component: () => import("./_nuxt/index-CI--5dnE.js")
   },
   {
     name: "login",
@@ -478,7 +478,7 @@ const _routes = [
   {
     name: "merchants-map",
     path: "/merchants/map",
-    component: () => import("./_nuxt/map-CAaGFRap.js")
+    component: () => import("./_nuxt/map-Cxsw8TyH.js")
   },
   {
     name: "merchants-new",

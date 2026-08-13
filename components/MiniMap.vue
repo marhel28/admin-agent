@@ -1,9 +1,10 @@
 <template>
-  <div class="w-full h-full relative rounded-xl overflow-hidden bg-slate-50 border">
-    <div v-if="loading" class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-      <Icon name="heroicons:arrow-path" class="w-6 h-6 animate-spin text-slate-400" />
+  <div class="w-full h-full relative rounded-2xl overflow-hidden bg-slate-900 shadow-inner">
+    <div v-if="loading" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+      <Icon name="heroicons:arrow-path" class="w-7 h-7 animate-spin text-blue-500 mb-2" />
+      <span class="text-xs font-bold text-slate-300">MEMUAT PETA...</span>
     </div>
-    <div ref="mapContainer" class="w-full h-full min-h-[300px]"></div>
+    <div ref="mapContainer" class="w-full h-full min-h-[360px]"></div>
   </div>
 </template>
 
@@ -17,6 +18,8 @@ const mapContainer = ref<HTMLElement | null>(null)
 let map: maplibregl.Map | null = null
 const loading = ref(true)
 
+const GLYPHS_URL = "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf"
+
 const initMap = async () => {
   if (!mapContainer.value) return
 
@@ -24,82 +27,155 @@ const initMap = async () => {
     container: mapContainer.value,
     style: {
       version: 8,
+      glyphs: GLYPHS_URL,
       sources: {
-        'carto-dark': {
+        'carto-voyager': {
           type: 'raster',
           tiles: [
-            'https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png'
+            'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+            'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+            'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
           ],
           tileSize: 256,
-          attribution: '&copy; OpenStreetMap, &copy; CARTO'
+          attribution: '&copy; CARTO &copy; OpenStreetMap'
         }
       },
       layers: [
         {
-          id: 'carto-dark-layer',
+          id: 'voyager-base',
           type: 'raster',
-          source: 'carto-dark',
+          source: 'carto-voyager',
           minzoom: 0,
-          maxzoom: 19
+          maxzoom: 20
         }
       ]
     },
     center: [106.827153, -6.175110], // Default center (Jakarta)
-    zoom: 4,
-    scrollZoom: false
+    zoom: 5,
+    scrollZoom: true
   })
+
+  map.addControl(new maplibregl.NavigationControl(), 'top-right')
 
   map.on('load', async () => {
     try {
       const merchants = await api.get('/admin/analytics/merchants-map')
       if (merchants && merchants.length > 0) {
-        
-        // Add markers
-        const bounds = new maplibregl.LngLatBounds()
-        let hasValidCoords = false
+        const features = merchants.filter((m: any) => m.longitude && m.latitude).map((m: any) => ({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [Number(m.longitude), Number(m.latitude)] },
+          properties: m
+        }))
 
-        merchants.forEach((m: any) => {
-          if (m.longitude && m.latitude) {
-            hasValidCoords = true
-            
-            const photoHtml = m.photo_profile 
-              ? `<img src="${m.photo_profile}" class="w-full h-24 object-cover rounded-lg mb-2" />` 
-              : '';
-              
-            const phoneHtml = m.phone_number
-              ? `<div class="flex items-center gap-1 text-xs text-emerald-600 mt-2 font-medium">
-                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                     <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                   </svg>
-                   ${m.phone_number}
-                 </div>`
-              : '';
+        const geojsonData = { type: 'FeatureCollection', features }
 
-            const popup = new maplibregl.Popup({ offset: 15, closeButton: false, className: 'custom-popup' })
-              .setHTML(`
-                <div class="w-48 p-1">
-                  ${photoHtml}
-                  <h3 class="font-bold text-sm text-slate-800 leading-tight">${m.store_name || m.name}</h3>
-                  <p class="text-[10px] text-slate-500 mt-1 leading-snug line-clamp-2">${m.address || 'No address provided'}</p>
-                  ${phoneHtml}
-                </div>
-              `)
-            
-            // Create small marker element
-            const el = document.createElement('div')
-            el.className = 'pulse-marker'
-            
-            new maplibregl.Marker({ element: el })
-              .setLngLat([m.longitude, m.latitude])
-              .setPopup(popup)
-              .addTo(map!)
-              
-            bounds.extend([m.longitude, m.latitude])
+        // Source for Supercluster
+        map!.addSource('dashboard-cluster', {
+          type: 'geojson',
+          data: geojsonData,
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 50
+        })
+
+        // Clusters circle layer
+        map!.addLayer({
+          id: 'dash-clusters',
+          type: 'circle',
+          source: 'dashboard-cluster',
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-color': ['step', ['get', 'point_count'], '#3b82f6', 10, '#2563eb', 50, '#1d4ed8'],
+            'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
+            'circle-stroke-width': 3,
+            'circle-stroke-color': 'rgba(255, 255, 255, 0.9)'
           }
         })
-        
-        if (hasValidCoords) {
-          map?.fitBounds(bounds, { padding: 30, maxZoom: 10 })
+
+        // Cluster count labels
+        map!.addLayer({
+          id: 'dash-cluster-count',
+          type: 'symbol',
+          source: 'dashboard-cluster',
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': '{point_count_abbreviated}',
+            'text-size': 12
+          },
+          paint: { 'text-color': '#ffffff' }
+        })
+
+        // Unclustered point markers
+        map!.addLayer({
+          id: 'dash-unclustered-point',
+          type: 'circle',
+          source: 'dashboard-cluster',
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-color': '#10b981',
+            'circle-radius': 7,
+            'circle-stroke-width': 3,
+            'circle-stroke-color': '#ffffff'
+          }
+        })
+
+        // Interactive hover popups
+        const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'dashboard-map-popup' })
+
+        map!.on('mouseenter', 'dash-unclustered-point', (e) => {
+          map!.getCanvas().style.cursor = 'pointer'
+          if (e.features && e.features[0]) {
+            const props = e.features[0].properties
+            const coords = (e.features[0].geometry as any).coordinates.slice()
+
+            const photoHtml = props.photo_profile
+              ? `<img src="${props.photo_profile}" class="w-full h-20 object-cover rounded-lg mb-2 shadow-sm" />`
+              : ''
+
+            const categoryHtml = props.category_store
+              ? `<span class="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 font-bold text-[9px] uppercase rounded-full border border-blue-100 mt-1">${props.category_store}</span>`
+              : ''
+
+            popup.setLngLat(coords).setHTML(`
+              <div class="w-48 p-1">
+                ${photoHtml}
+                <h4 class="font-extrabold text-xs text-slate-800 leading-tight">${props.store_name || props.name}</h4>
+                <p class="text-[10px] text-slate-500 mt-0.5 line-clamp-2">${props.address || 'Alamat belum diatur'}</p>
+                ${categoryHtml}
+              </div>
+            `).addTo(map!)
+          }
+        })
+
+        map!.on('mouseleave', 'dash-unclustered-point', () => {
+          map!.getCanvas().style.cursor = ''
+          popup.remove()
+        })
+
+        // Zoom on cluster click
+        map!.on('click', 'dash-clusters', async (e) => {
+          const features = map!.queryRenderedFeatures(e.point, { layers: ['dash-clusters'] })
+          const clusterId = features[0].properties.cluster_id
+          const source: any = map!.getSource('dashboard-cluster')
+          const zoom = await source.getClusterExpansionZoom(clusterId)
+          map!.easeTo({
+            center: features[0].geometry.coordinates as any,
+            zoom: zoom + 1
+          })
+        })
+
+        map!.on('mouseenter', 'dash-clusters', () => {
+          map!.getCanvas().style.cursor = 'pointer'
+        })
+        map!.on('mouseleave', 'dash-clusters', () => {
+          map!.getCanvas().style.cursor = ''
+        })
+
+        // Fit bounds
+        if (features.length > 0) {
+          const bounds = new maplibregl.LngLatBounds()
+          features.forEach((f: any) => bounds.extend(f.geometry.coordinates))
+          map!.fitBounds(bounds, { padding: 40, maxZoom: 12 })
         }
       }
     } catch (err) {
@@ -118,28 +194,17 @@ onUnmounted(() => {
   if (map) map.remove()
 })
 </script>
+
 <style>
-.custom-popup .maplibregl-popup-content {
-  border-radius: 12px;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+.dashboard-map-popup .maplibregl-popup-content {
+  border-radius: 14px;
+  box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.15);
   padding: 8px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
 }
-.custom-popup .maplibregl-popup-tip {
-  display: none;
-}
-.pulse-marker {
-  width: 14px;
-  height: 14px;
-  background-color: #3b82f6;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-  animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
-}
-@keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-  70% { box-shadow: 0 0 0 12px rgba(59, 130, 246, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+.dashboard-map-popup .maplibregl-popup-tip {
+  border-top-color: rgba(255, 255, 255, 0.95);
 }
 </style>

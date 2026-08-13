@@ -54,15 +54,6 @@
           </select>
         </div>
 
-        <!-- Layer Switcher -->
-        <div class="flex bg-slate-100/80 p-1 rounded-xl">
-          <button @click="switchStyle('voyager')" :class="{'bg-white shadow-sm text-blue-600 font-bold': activeStyle === 'voyager', 'text-slate-600 font-medium hover:text-slate-900': activeStyle !== 'voyager'}" class="px-3 py-1.5 text-xs rounded-lg transition-all">Voyager</button>
-          <button @click="switchStyle('positron')" :class="{'bg-white shadow-sm text-blue-600 font-bold': activeStyle === 'positron', 'text-slate-600 font-medium hover:text-slate-900': activeStyle !== 'positron'}" class="px-3 py-1.5 text-xs rounded-lg transition-all">Light</button>
-          <button @click="switchStyle('dark')" :class="{'bg-white shadow-sm text-blue-600 font-bold': activeStyle === 'dark', 'text-slate-600 font-medium hover:text-slate-900': activeStyle !== 'dark'}" class="px-3 py-1.5 text-xs rounded-lg transition-all">Dark</button>
-          <button @click="switchStyle('satellite')" :class="{'bg-white shadow-sm text-blue-600 font-bold': activeStyle === 'satellite', 'text-slate-600 font-medium hover:text-slate-900': activeStyle !== 'satellite'}" class="px-3 py-1.5 text-xs rounded-lg transition-all">Satelit</button>
-          <button @click="switchStyle('hybrid')" :class="{'bg-white shadow-sm text-blue-600 font-bold': activeStyle === 'hybrid', 'text-slate-600 font-medium hover:text-slate-900': activeStyle !== 'hybrid'}" class="px-3 py-1.5 text-xs rounded-lg transition-all">Hybrid</button>
-        </div>
-
         <!-- Divider -->
         <div class="h-6 w-px bg-slate-200 my-auto"></div>
 
@@ -259,67 +250,6 @@ const styles = {
       }
     },
     layers: [{ id: 'base-layer', type: 'raster', source: 'carto-voyager', minzoom: 0, maxzoom: 20 }]
-  },
-  dark: {
-    version: 8,
-    glyphs: GLYPHS_URL,
-    sources: {
-      'carto-dark': {
-        type: 'raster',
-        tiles: [
-          'https://a.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png',
-          'https://b.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png',
-          'https://c.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png',
-          'https://d.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png'
-        ],
-        tileSize: 256,
-        attribution: '&copy; CARTO'
-      }
-    },
-    layers: [{ id: 'base-layer', type: 'raster', source: 'carto-dark', minzoom: 0, maxzoom: 20 }]
-  },
-  positron: {
-    version: 8,
-    glyphs: GLYPHS_URL,
-    sources: {
-      'carto-positron': {
-        type: 'raster',
-        tiles: [
-          'https://a.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}@2x.png',
-          'https://b.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}@2x.png',
-          'https://c.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}@2x.png',
-          'https://d.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}@2x.png'
-        ],
-        tileSize: 256,
-        attribution: '&copy; CARTO'
-      }
-    },
-    layers: [{ id: 'base-layer', type: 'raster', source: 'carto-positron', minzoom: 0, maxzoom: 20 }]
-  },
-  satellite: {
-    version: 8,
-    glyphs: GLYPHS_URL,
-    sources: {
-      'esri-satellite': {
-        type: 'raster',
-        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-        tileSize: 256,
-        attribution: '&copy; Esri & Maxar'
-      }
-    },
-    layers: [{ id: 'base-layer', type: 'raster', source: 'esri-satellite', minzoom: 0, maxzoom: 19 }]
-  },
-  hybrid: {
-    version: 8,
-    glyphs: GLYPHS_URL,
-    sources: {
-      'gmaps-hybrid': {
-        type: 'raster',
-        tiles: ['https://mt1.google.com/vt/lyrs=y&hl=id&x={x}&y={y}&z={z}'],
-        tileSize: 256
-      }
-    },
-    layers: [{ id: 'base-layer', type: 'raster', source: 'gmaps-hybrid', minzoom: 0, maxzoom: 20 }]
   }
 }
 
@@ -444,6 +374,19 @@ const addMapData = () => {
     (map.value.getSource('merchants-heat') as maplibregl.GeoJSONSource).setData(geojsonData)
   }
 
+  // Authentic Google Maps Red Pin SVG Data URL
+  const googlePinSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="32" height="42"><path fill="%23EA4335" d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0z"/><circle cx="192" cy="192" r="75" fill="%23FFFFFF"/></svg>`
+
+  if (!map.value.hasImage('google-red-pin')) {
+    const img = new Image(32, 42)
+    img.onload = () => {
+      if (map.value && !map.value.hasImage('google-red-pin')) {
+        map.value.addImage('google-red-pin', img)
+      }
+    }
+    img.src = googlePinSvg
+  }
+
   // === CLUSTER LAYERS ===
   if (!map.value.getLayer('clusters')) {
     map.value.addLayer({
@@ -476,19 +419,20 @@ const addMapData = () => {
     })
   }
 
+  // Authentic Google Red Pin Symbol Layer
   if (!map.value.getLayer('unclustered-point')) {
     map.value.addLayer({
       id: 'unclustered-point',
-      type: 'circle',
+      type: 'symbol',
       source: 'merchants-cluster',
       filter: ['!', ['has', 'point_count']],
-      paint: {
-        'circle-color': '#f43f5e',
-        'circle-radius': 8,
-        'circle-stroke-width': 3,
-        'circle-stroke-color': '#fff'
-      },
-      layout: { visibility: activeMode.value === 'cluster' ? 'visible' : 'none' }
+      layout: {
+        'icon-image': 'google-red-pin',
+        'icon-size': 0.85,
+        'icon-anchor': 'bottom',
+        'icon-allow-overlap': true,
+        visibility: activeMode.value === 'cluster' ? 'visible' : 'none'
+      }
     })
   }
 
